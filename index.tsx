@@ -89,10 +89,9 @@ function GoogleMap({ location, isLive }: { location: Location | null, isLive: bo
 
   if (!mapLoaded) {
     return html`
-      <div class="map-placeholder">
-        <div class="map-grid-overlay"></div>
-        <div class="placeholder-content">
-          <div class="pulse-icon">📍</div>
+      <div class="map-placeholder" style="height: 100%; display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
+        <div class="placeholder-content" style="text-align: center;">
+          <div class="pulse-icon" style="font-size: 3rem;">📍</div>
           <p>Connecting Satellite...</p>
           <small>${isLive ? 'Live GPS Active' : 'Waiting for Signal'}</small>
         </div>
@@ -119,24 +118,24 @@ function ChatView({ role, messages, onSendMessage }: { role: string, messages: M
       <div class="chat-messages">
         ${messages.map((msg: Message) => html`
           <div class="msg-bubble ${msg.isBroadcast ? 'broadcast' : ''} ${msg.sender.includes(role === 'driver' ? 'Teacher' : 'Parent') ? 'mine' : 'theirs'}">
-            <div class="msg-sender">${msg.isBroadcast ? '📢 Announcement' : msg.sender}</div>
+            <div class="msg-sender" style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px;">${msg.isBroadcast ? '📢 Announcement' : msg.sender}</div>
             <div class="msg-text">${msg.text}</div>
-            <div class="msg-time">${msg.time}</div>
+            <div class="msg-time" style="font-size: 0.7rem; text-align: right; margin-top: 4px;">${msg.time}</div>
           </div>
         `)}
         <div ref=${chatEndRef}></div>
       </div>
       
       <div class="chat-controls">
-        <div class="quick-tags">
+        <div class="quick-tags" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px;">
           ${quickMsgs.map((m: string) => html`
-            <button class="tag-btn" onClick=${() => onSendMessage(m, true)}>${m}</button>
+            <button class="tag-btn" style="white-space: nowrap; padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px; background: #f9f9f9; font-size: 0.85rem;" onClick=${() => onSendMessage(m, true)}>${m}</button>
           `)}
         </div>
         <div class="chat-input-area">
           <input type="text" placeholder="Type a message..." value=${input} onInput=${(e: any) => setInput(e.target.value)} />
           <button class="send-btn" onClick=${() => { if(input) { onSendMessage(input, false); setInput(''); } }}>
-             <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+             🚀
           </button>
         </div>
       </div>
@@ -210,187 +209,178 @@ function App() {
     setTimeout(() => setSosActive(false), 5000);
   };
 
+  // --- Main Render Logic ---
+  
+  if (!role) {
+    return html`
+      <div class="centered-view">
+        <div class="splash-screen anim-fade-in">
+          <div class="brand-container" style="margin-bottom: 30px;">
+            <div class="app-icon-main" style="font-size: 4rem;">🚌</div>
+            <h1>BusBuddy <span>PRO</span></h1>
+            <p style="color: #666;">SafetyFirst Transportation</p>
+          </div>
+          <div class="role-selection-area" style="display: flex; flex-direction: column; gap: 15px;">
+            <button class="action-btn" onClick=${() => setRole('driver')}>🧢 Teacher / Driver</button>
+            <button class="action-btn" onClick=${() => setRole('parent')}>🏠 Parent</button>
+            <button class="action-btn" style="background: #5f6368;" onClick=${() => setRole('admin')}>🏢 School Admin</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (!selectedSchool) {
+    return html`
+      <div class="centered-view">
+        <div class="auth-box anim-fade-in">
+          <button class="icon-btn" style="float: left; background: none; border: none; font-size: 1.5rem; cursor: pointer;" onClick=${() => setRole(null)}>←</button>
+          <div style="font-size: 3rem; margin-bottom: 20px;">🔐</div>
+          <h2>School Verification</h2>
+          <p style="margin: 15px 0; color: #666;">Enter your access code to continue.</p>
+          <div class="code-input-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input 
+              style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px;"
+              type="text" placeholder="SEL999" maxlength="6"
+              value=${schoolCode} onInput=${(e: any) => setSchoolCode(e.target.value)}
+            />
+            <button class="action-btn" onClick=${handleVerifyCode}>Join</button>
+          </div>
+          ${codeError && html`<p style="color: red; font-size: 0.9rem;">⚠️ ${codeError}</p>`}
+          <small style="color: #999;">Try: SEL999 or PAE101</small>
+        </div>
+      </div>
+    `;
+  }
+
+  if (role === 'admin') {
+    return html`
+      <div class="app-container anim-fade-in">
+        <header class="tracker-header">
+          <button style="background:none; border:none; font-size: 1.2rem; cursor:pointer;" onClick=${() => setSelectedSchool(null)}>←</button>
+          <div style="text-align: center;">
+            <small>Admin Hub</small>
+            <h3>${selectedSchool.name}</h3>
+          </div>
+          <div style="width: 24px;"></div>
+        </header>
+        <div style="padding: 20px;">
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; display: flex; justify-content: space-around; margin-bottom: 20px;">
+            <div style="text-align:center;"><strong>${selectedSchool.code ? schools[selectedSchool.code].routes.length : 0}</strong><br/>Routes</div>
+            <div style="text-align:center;"><strong style="color: green;">Online</strong><br/>Fleet</div>
+          </div>
+          <h4>Route Management</h4>
+          <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+            ${selectedSchool.code && schools[selectedSchool.code].routes.map((r: string) => html`
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border: 1px solid #eee; border-radius: 10px;">
+                <span>${r}</span>
+                <button style="color: red; border: none; background: none; cursor: pointer;" onClick=${() => {
+                  if (!selectedSchool.code) return;
+                  const updated = {...schools};
+                  updated[selectedSchool.code].routes = updated[selectedSchool.code].routes.filter((item: string) => item !== r);
+                  setSchools(updated);
+                }}>Delete</button>
+              </div>
+            `)}
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <input style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px;" type="text" placeholder="New Route Name" value=${newRouteName} onInput=${(e: any) => setNewRouteName(e.target.value)} />
+              <button class="action-btn" onClick=${() => {
+                if(!newRouteName || !selectedSchool.code) return;
+                const updated = {...schools};
+                updated[selectedSchool.code].routes.push(newRouteName);
+                setSchools(updated);
+                setNewRouteName('');
+              }}>+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (!route) {
+    return html`
+      <div class="app-container anim-fade-in">
+        <header class="tracker-header">
+          <button style="background:none; border:none; font-size: 1.2rem; cursor:pointer;" onClick=${() => setSelectedSchool(null)}>←</button>
+          <div style="text-align: center;">
+            <small>${selectedSchool.name}</small>
+            <h3>Select Route</h3>
+          </div>
+          <div style="width: 24px;"></div>
+        </header>
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+          ${selectedSchool.code && schools[selectedSchool.code].routes.map((r: string) => html`
+            <div style="padding: 20px; background: white; border: 1px solid #eee; border-radius: 15px; display: flex; align-items: center; cursor: pointer; transition: 0.2s;" onClick=${() => setRoute(r)}>
+              <div style="width: 40px; height: 40px; background: #e8f0fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold; color: var(--primary);">${r.charAt(0)}</div>
+              <div style="flex: 1;">
+                <h4 style="margin-bottom: 4px;">${r}</h4>
+                <p style="font-size: 0.85rem; color: #666;">Driver: ${selectedSchool.driverName}</p>
+              </div>
+              <div style="color: #ccc;">→</div>
+            </div>
+          `)}
+        </div>
+      </div>
+    `;
+  }
+
   return html`
-    <div class="mobile-wrapper">
-      <div class="mobile-content">
-        ${!role ? html`
-          <div class="splash-screen anim-fade-in">
-            <div class="brand-container">
-              <div class="app-icon-main">🚌</div>
-              <div class="brand-text">
-                <h1>BusBuddy <span>PRO</span></h1>
-                <p>SafetyFirst Transportation</p>
-              </div>
-            </div>
-            <div class="role-selection-area">
-              <button class="role-card driver" onClick=${() => setRole('driver')}>
-                <div class="r-icon">🧢</div>
-                <div class="r-info"><h3>Teacher/Driver</h3><p>Manage Route</p></div>
-              </button>
-              <button class="role-card parent" onClick=${() => setRole('parent')}>
-                <div class="r-icon">🏠</div>
-                <div class="r-info"><h3>Parent</h3><p>Track Child</p></div>
-              </button>
-              <button class="role-card admin" onClick=${() => setRole('admin')}>
-                <div class="r-icon">🏢</div>
-                <div class="r-info"><h3>School Admin</h3><p>Control Fleet</p></div>
-              </button>
-            </div>
-            <footer class="splash-footer">Powered by Seoul Global School</footer>
-          </div>
-        ` : !selectedSchool ? html`
-          <div class="full-page anim-fade-in">
-            <header class="page-nav">
-              <button class="icon-btn" onClick=${() => setRole(null)}>←</button>
-              <span>School Access</span>
-            </header>
-            <div class="auth-box">
-              <div class="school-avatar">🔐</div>
-              <h2>School Verification</h2>
-              <p>Please enter your access code.</p>
-              <div class="code-input-group">
-                <input 
-                  type="text" 
-                  placeholder="SEL999" 
-                  maxlength="6"
-                  value=${schoolCode}
-                  onInput=${(e: any) => setSchoolCode(e.target.value)}
-                />
-                <button class="action-btn" onClick=${handleVerifyCode}>Join</button>
-              </div>
-              ${codeError && html`<p class="error-text">⚠️ ${codeError}</p>`}
-              <div class="hint-text">Test Code: SEL999</div>
-            </div>
-          </div>
-        ` : role === 'admin' ? html`
-          <div class="app-shell admin-view anim-fade-in">
-            <header class="main-header">
-              <button class="icon-btn" onClick=${() => setSelectedSchool(null)}>←</button>
-              <div class="header-title">
-                 <small>Control Center</small>
-                 <h3>${selectedSchool.name}</h3>
-              </div>
-            </header>
-            <div class="dashboard-body">
-              <div class="stats-card">
-                <div class="stat-item"><strong>${selectedSchool.code ? schools[selectedSchool.code].routes.length : 0}</strong><span>Routes</span></div>
-                <div class="stat-item"><strong style="color:var(--success)">Online</strong><span>Hub</span></div>
-              </div>
-              <div class="section-card">
-                <div class="section-header"><h3>Fleet Management</h3></div>
-                <div class="route-manager">
-                  ${selectedSchool.code && schools[selectedSchool.code].routes.map((r: string) => html`
-                    <div class="manager-item">
-                      <div class="m-info"><strong>${r}</strong><small>Active</small></div>
-                      <button class="del-btn" onClick=${() => {
-                        if (!selectedSchool.code) return;
-                        const updated = {...schools};
-                        updated[selectedSchool.code].routes = updated[selectedSchool.code].routes.filter((item: string) => item !== r);
-                        setSchools(updated);
-                      }}>Delete</button>
-                    </div>
-                  `)}
-                  <div class="add-route-input">
-                    <input type="text" placeholder="Add route..." value=${newRouteName} onInput=${(e: any) => setNewRouteName(e.target.value)} />
-                    <button class="add-action-btn" onClick=${() => {
-                      if(!newRouteName || !selectedSchool.code) return;
-                      const updated = {...schools};
-                      updated[selectedSchool.code].routes.push(newRouteName);
-                      setSchools(updated);
-                      setNewRouteName('');
-                    }}>+</button>
-                  </div>
+    <div class="app-container app-shell anim-fade-in">
+      <header class="tracker-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+           <div style="width: 10px; height: 10px; border-radius: 50%; background: ${isLive ? '#34a853' : '#dadce0'};"></div>
+           <div>
+             <h3 style="font-size: 1.1rem;">${activeTab === 'chat' ? 'Comm. Channel' : route}</h3>
+             <small style="color: #666;">${selectedSchool.name}</small>
+           </div>
+        </div>
+        ${role === 'driver' 
+          ? html`<button style="background: #D93025; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer;" onClick=${triggerSOS}>SOS</button>`
+          : html`<div style="background: #e8f0fe; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem;">ETA: <strong>${isLive ? '12 min' : '--'}</strong></div>`
+        }
+      </header>
+
+      <main class="map-container">
+        ${activeTab === 'map' ? html`
+          <${GoogleMap} location=${location} isLive=${isLive} />
+          <div class="control-overlay">
+            <div class="panel-card">
+              ${role === 'driver' ? html`
+                <button class="main-cta ${isLive ? 'stop' : 'start'}" onClick=${isLive ? stopTracking : startTracking}>
+                  ${isLive ? '🛑 Stop Broadcasting' : '🚀 Start Shift'}
+                </button>
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                   <div><small style="color: #666;">Passengers</small><br/><strong>18</strong></div>
+                   <div><small style="color: #666;">Speed</small><br/><strong>${isLive ? '32' : '0'} km/h</strong></div>
                 </div>
-              </div>
-            </div>
-          </div>
-        ` : !route ? html`
-          <div class="full-page anim-fade-in">
-            <header class="page-nav">
-              <button class="icon-btn" onClick=${() => setSelectedSchool(null)}>←</button>
-              <div class="nav-title">
-                <small>${selectedSchool.name}</small>
-                <span>Select Your Route</span>
-              </div>
-            </header>
-            <div class="route-list">
-              ${selectedSchool.code && schools[selectedSchool.code].routes.map((r: string) => html`
-                <div class="route-select-card" onClick=${() => setRoute(r)}>
-                  <div class="r-badge">${r.charAt(0)}</div>
-                  <div class="r-details">
-                    <h4>${r}</h4>
-                    <p>Driver: ${selectedSchool.driverName}</p>
-                  </div>
-                  <div class="r-arrow">→</div>
+              ` : html`
+                <div style="display: flex; align-items: center; gap: 15px;">
+                   <div style="font-size: 2rem;">🧒</div>
+                   <div style="flex: 1;">
+                     <h4 style="margin-bottom: 2px;">Emily's Boarding</h4>
+                     <span style="font-size: 0.85rem; color: #1E8E3E; background: #e6f4ea; padding: 2px 8px; border-radius: 4px;">${studentStatus}</span>
+                   </div>
+                   <button style="background: none; border: 1px solid #ddd; padding: 8px; border-radius: 8px; cursor: pointer;" onClick=${() => {
+                      const next = studentStatus === 'Wait' ? 'Boarded' : (studentStatus === 'Boarded' ? 'Arrived' : 'Wait');
+                      setStudentStatus(next);
+                   }}>↺</button>
                 </div>
-              `)}
+              `}
             </div>
           </div>
         ` : html`
-          <div class="app-shell tracker-view anim-fade-in">
-            <header class="tracker-header">
-              <div class="tracker-info">
-                 <div class="live-dot ${isLive ? 'on' : ''}"></div>
-                 <div class="text">
-                   <h3>${activeTab === 'chat' ? 'Comm. Channel' : route}</h3>
-                   <small>${selectedSchool.name}</small>
-                 </div>
-              </div>
-              ${role === 'driver' ? html`
-                <button class="sos-action" onClick=${triggerSOS}>SOS</button>
-              ` : html`
-                <div class="eta-pill">
-                   <span>ETA</span>
-                   <strong>${isLive ? '12 min' : '--'}</strong>
-                </div>
-              `}
-            </header>
-
-            <main class="map-container">
-              ${activeTab === 'map' ? html`
-                <${GoogleMap} location=${location} isLive=${isLive} />
-                <div class="control-overlay">
-                  ${role === 'driver' ? html`
-                    <div class="panel-card driver-card">
-                      <button class="main-cta ${isLive ? 'stop' : 'start'}" onClick=${isLive ? stopTracking : startTracking}>
-                        ${isLive ? '🛑 Stop Broadcasting' : '🚀 Start Shift'}
-                      </button>
-                      <div class="driver-info-grid">
-                         <div class="grid-cell"><span>Passengers</span><strong>18</strong></div>
-                         <div class="grid-cell"><span>Speed</span><strong>${isLive ? '32 km/h' : '0'}</strong></div>
-                      </div>
-                    </div>
-                  ` : html`
-                    <div class="panel-card parent-card">
-                       <div class="student-status-box">
-                          <div class="student-profile">🧒</div>
-                          <div class="student-text">
-                            <h4>Emily's Boarding</h4>
-                            <span class="status-label ${studentStatus.toLowerCase()}">${studentStatus}</span>
-                          </div>
-                          <button class="update-btn" onClick=${() => {
-                            const next = studentStatus === 'Wait' ? 'Boarded' : (studentStatus === 'Boarded' ? 'Arrived' : 'Wait');
-                            setStudentStatus(next);
-                          }}>↺</button>
-                       </div>
-                    </div>
-                  `}
-                </div>
-              ` : html`
-                <${ChatView} role=${role} messages=${messages} onSendMessage=${handleSendMessage} />
-              `}
-            </main>
-
-            ${sosActive && html`<div class="sos-fullscreen">🚨 EMERGENCY SOS 🚨</div>`}
-
-            <nav class="main-tabs">
-               <button class=${activeTab === 'map' ? 'active' : ''} onClick=${() => setActiveTab('map')}><i>📍</i>Map</button>
-               <button class=${activeTab === 'chat' ? 'active' : ''} onClick=${() => setActiveTab('chat')}><i>💬</i>Chat</button>
-               <button onClick=${() => setRoute(null)}><i>🔄</i>Routes</button>
-            </nav>
-          </div>
+          <${ChatView} role=${role} messages=${messages} onSendMessage=${handleSendMessage} />
         `}
-      </div>
+      </main>
+
+      ${sosActive && html`<div class="sos-fullscreen">🚨 EMERGENCY SOS 🚨</div>`}
+
+      <nav class="main-tabs">
+         <button class=${activeTab === 'map' ? 'active' : ''} onClick=${() => setActiveTab('map')}><i>📍</i>Map</button>
+         <button class=${activeTab === 'chat' ? 'active' : ''} onClick=${() => setActiveTab('chat')}><i>💬</i>Chat</button>
+         <button onClick=${() => setRoute(null)}><i>🔄</i>Routes</button>
+      </nav>
     </div>
   `;
 }
