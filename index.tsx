@@ -76,7 +76,7 @@ function GoogleMap({ location, isLive }: { location: Location | null, isLive: bo
           map: mapInstance.current,
           title: "School Bus",
           icon: {
-            url: 'https://cdn-icons-png.flaticon.com/512/3448/3448339.png',
+            url: 'https://cdn-icons-png.flaticon.com/512/3069/3069112.png',
             scaledSize: new (window as any).google.maps.Size(40, 40),
           }
         });
