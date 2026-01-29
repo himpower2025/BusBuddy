@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BusBuddy - Smart School Bus Tracker</title>
+    <link rel="stylesheet" href="/index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script type="importmap">
+{
+  "imports": {
+    "preact": "https://esm.sh/preact@^10.28.2",
+    "preact/": "https://esm.sh/preact@^10.28.2/",
+    "htm/": "https://esm.sh/htm@^3.1.1/",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@preact/preset-vite": "https://esm.sh/@preact/preset-vite@^2.10.3"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <!-- 주의: API 키를 실제 본인의 구글 맵 API 키로 바꿔주세요 -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=본인의_API_키&libraries=places"></script>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
