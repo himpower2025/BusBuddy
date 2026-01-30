@@ -5,7 +5,7 @@
   --accent: #FBC02D;
   --danger: #D93025;
   --success: #1E8E3E;
-  --bg-gradient: linear-gradient(135deg, #1A73E8 0%, #0D47A1 100%);
+  --bg-body: #F8F9FA;
   --surface: #FFFFFF;
   --text-main: #202124;
   --text-sub: #5F6368;
@@ -22,7 +22,7 @@
 }
 
 body { 
-  background: var(--bg-gradient); 
+  background: var(--bg-body); 
   min-height: 100vh; 
   display: flex; 
   flex-direction: column;
@@ -53,18 +53,17 @@ body {
   }
 }
 
-/* --- 스플래시 & 인증 화면 (중앙 정렬) --- */
+/* --- 스플래시 & 인증 화면 --- */
 .centered-view {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: var(--bg-gradient);
+  background: var(--bg-body);
 }
 
 .auth-box, .splash-screen {
-  background: white;
   padding: 40px;
   border-radius: var(--radius-lg);
   width: 100%;

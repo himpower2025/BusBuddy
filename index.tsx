@@ -212,21 +212,20 @@ function App() {
 
   if (!role) {
     return html`
-      <div class="centered-view" style="background: linear-gradient(135deg, #1A73E8 0%, #0D47A1 100%);">
-        <div class="splash-screen anim-fade-in" style="background: white; border-radius: 40px; border: none; padding: 60px 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);">
+      <div class="centered-view" style="background: #F8F9FA;">
+        <div class="splash-screen anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; border: none; padding: 60px 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.12);">
           <div class="brand-container" style="margin-bottom: 40px; display: flex; flex-direction: column; align-items: center;">
-            <!-- 로고 박스: 노란색 배경 유지 -->
-            <div style="width: 170px; height: 170px; background: linear-gradient(135deg, #FFF9C4 0%, #FFD600 100%); border-radius: 45px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 15px 35px rgba(255,193,7,0.3); border: 4px solid white;">
-              <!-- translateY(-12px)로 시각적 정중앙 재보정 -->
-              <img src=${BUS_ICON_URL} alt="Cute School Bus" style="width: 130px; height: 130px; object-fit: contain; transform: translateY(-12px); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));" />
+            <div style="width: 175px; height: 175px; background: linear-gradient(135deg, #FFF9C4 0%, #FFD600 100%); border-radius: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 15px 35px rgba(255,193,7,0.4); border: 5px solid white;">
+              <!-- translateY(-24px)로 시각적 정중앙 정밀 보정 -->
+              <img src=${BUS_ICON_URL} alt="Cute School Bus" style="width: 135px; height: 135px; object-fit: contain; transform: translateY(-24px); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));" />
             </div>
-            <h1 style="font-size: 2.7rem; letter-spacing: -1.5px; margin-bottom: 8px; color: #1A73E8; font-weight: 900;">BusBuddy <span style="color: #FFC107;">PRO</span></h1>
-            <p style="color: #1A73E8; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Smart School Transportation</p>
+            <h1 style="font-size: 2.8rem; letter-spacing: -1.8px; margin-bottom: 8px; color: #1A73E8; font-weight: 900;">BusBuddy <span style="color: #FFB300;">PRO</span></h1>
+            <p style="color: #1A73E8; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.85;">Smart School Transportation</p>
           </div>
           <div class="role-selection-area" style="display: flex; flex-direction: column; gap: 18px; width: 100%;">
-            <button class="action-btn" style="background: #1A73E8; height: 60px; border-radius: 18px; font-size: 1.1rem;" onClick=${() => setRole('driver')}>🧢 Teacher / Driver</button>
-            <button class="action-btn" style="background: #34A853; height: 60px; border-radius: 18px; font-size: 1.1rem;" onClick=${() => setRole('parent')}>🏠 Parent</button>
-            <button class="action-btn" style="background: #5f6368; height: 60px; border-radius: 18px; font-size: 1.1rem;" onClick=${() => setRole('admin')}>🏢 School Admin</button>
+            <button class="action-btn" style="background: #1A73E8; height: 62px; border-radius: 18px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(26,115,232,0.2);" onClick=${() => setRole('driver')}>🧢 Teacher / Driver</button>
+            <button class="action-btn" style="background: #34A853; height: 62px; border-radius: 18px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(52,168,83,0.2);" onClick=${() => setRole('parent')}>🏠 Parent</button>
+            <button class="action-btn" style="background: #5F6368; height: 62px; border-radius: 18px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1);" onClick=${() => setRole('admin')}>🏢 School Admin</button>
           </div>
         </div>
       </div>
@@ -235,27 +234,28 @@ function App() {
 
   if (!selectedSchool) {
     return html`
-      <div class="centered-view" style="background: linear-gradient(135deg, #1A73E8 0%, #0D47A1 100%);">
-        <div class="auth-box anim-fade-in" style="border-radius: 40px; padding: 50px 30px; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.1);">
+      <div class="centered-view" style="background: #F8F9FA;">
+        <div class="auth-box anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; padding: 50px 30px; border: none; box-shadow: 0 25px 50px rgba(0,0,0,0.12);">
           <button class="icon-btn" style="float: left; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #1A73E8;" onClick=${() => setRole(null)}>←</button>
           <div style="font-size: 5rem; margin-bottom: 25px;">🏫</div>
-          <h2 style="font-size: 1.8rem; font-weight: 900; color: #202124;">School Login</h2>
-          <p style="margin: 15px 0 35px; color: #5F6368; font-size: 1.1rem;">Enter your 6-digit access code.</p>
+          <h2 style="font-size: 1.9rem; font-weight: 900; color: #1A73E8;">School Login</h2>
+          <p style="margin: 15px 0 35px; color: #1A73E8; font-weight: 500; font-size: 1.1rem;">Enter your 6-digit access code.</p>
           <input 
-            style="width: 100%; padding: 20px; border: 3px solid #F1F3F4; background: #F8F9FA; border-radius: 20px; font-size: 1.6rem; text-align: center; letter-spacing: 8px; font-weight: 900; color: #1A73E8; margin-bottom: 30px; outline: none;"
+            style="width: 100%; padding: 22px; border: 3px solid white; background: rgba(255,255,255,0.8); border-radius: 22px; font-size: 1.8rem; text-align: center; letter-spacing: 10px; font-weight: 900; color: #1A73E8; margin-bottom: 30px; outline: none; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);"
             type="text" placeholder="SEL999" maxlength="6"
             value=${schoolCode} onInput=${(e: any) => setSchoolCode(e.target.value)}
           />
-          <button class="action-btn" style="width: 100%; height: 65px; font-size: 1.3rem; border-radius: 20px; background: #1A73E8;" onClick=${handleVerifyCode}>Connect</button>
-          ${codeError && html`<p style="color: #D93025; font-size: 1rem; margin-top: 20px; font-weight: 700;">⚠️ ${codeError}</p>`}
-          <div style="margin-top: 30px; padding: 15px; background: #E8F0FE; border-radius: 15px;">
-            <small style="color: #1967D2; font-weight: bold;">Demo: SEL999 / PAE101</small>
+          <button class="action-btn" style="width: 100%; height: 68px; font-size: 1.3rem; border-radius: 22px; background: #1A73E8;" onClick=${handleVerifyCode}>Connect</button>
+          ${codeError && html`<p style="color: #D93025; font-size: 1.05rem; margin-top: 20px; font-weight: 800;">⚠️ ${codeError}</p>`}
+          <div style="margin-top: 35px; padding: 18px; background: rgba(255,255,255,0.5); border-radius: 18px; border: 1px dashed #1A73E8;">
+            <small style="color: #1A73E8; font-weight: 800; font-size: 0.95rem;">Demo: SEL999 / PAE101</small>
           </div>
         </div>
       </div>
     `;
   }
 
+  // --- (나머지 렌더링 코드 유지) ---
   if (role === 'admin') {
     return html`
       <div class="app-container anim-fade-in" style="background: white; min-height: 100vh;">
