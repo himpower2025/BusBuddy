@@ -31,8 +31,8 @@ interface Location {
 }
 
 // --- Constants ---
-// 상하좌우 대칭이 완벽한 3D 스쿨 버스 아이콘
-const BUS_ICON_URL = 'https://cdn-icons-png.flaticon.com/512/1048/1048314.png';
+// 전세계적으로 통용되는 고품질 3D 노란색 스쿨 버스 이미지
+const BUS_ICON_URL = 'https://img.icons8.com/fluency/512/school-bus.png';
 
 const INITIAL_SCHOOLS: Schools = {
   'SEL999': { id: 'S4', name: 'Seoul Global School', logo: '🌏', routes: ['Gangnam Line', 'Hannam Shuttle', 'Mapo Express'], driverName: 'Kim Bus' },
@@ -80,7 +80,7 @@ function GoogleMap({ location, isLive }: { location: Location | null, isLive: bo
           title: "School Bus",
           icon: {
             url: BUS_ICON_URL,
-            scaledSize: new (window as any).google.maps.Size(50, 50),
+            scaledSize: new (window as any).google.maps.Size(45, 45),
           }
         });
       } else {
@@ -217,12 +217,12 @@ function App() {
       <div class="centered-view">
         <div class="splash-screen anim-fade-in">
           <div class="brand-container" style="margin-bottom: 30px; display: flex; flex-direction: column; align-items: center;">
-            <!-- 원형 배경을 추가하여 아이콘을 더 돋보이게 처리 -->
-            <div style="width: 160px; height: 160px; background: #e8f0fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-              <img src=${BUS_ICON_URL} alt="BusBuddy Logo" style="width: 110px; height: 110px; object-fit: contain;" />
+            <!-- 원형 배경색을 흰색이 아닌 부드러운 블루 그라데이션으로 변경 -->
+            <div style="width: 170px; height: 170px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; box-shadow: 0 12px 24px rgba(0,0,0,0.12); border: 4px solid white;">
+              <img src=${BUS_ICON_URL} alt="BusBuddy School Bus" style="width: 120px; height: 120px; object-fit: contain;" />
             </div>
             <h1>BusBuddy <span style="color: var(--primary);">PRO</span></h1>
-            <p style="color: #666; margin-top: 5px;">Smart Safety Transportation</p>
+            <p style="color: #666; margin-top: 5px; font-weight: 500;">Smart School Transportation</p>
           </div>
           <div class="role-selection-area" style="display: flex; flex-direction: column; gap: 15px;">
             <button class="action-btn" onClick=${() => setRole('driver')}>🧢 Teacher / Driver</button>
