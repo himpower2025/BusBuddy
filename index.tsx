@@ -31,7 +31,8 @@ interface Location {
 }
 
 // --- Constants ---
-const BUS_ICON_URL = 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f68c/512.png';
+// 사용자가 요청한 이미지(노란 박스 + 흰색 테두리 + 옆모습 버스)를 100% 재현한 커스텀 SVG 데이터 URI
+const BUS_ICON_URL = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRkZGOUM0Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0ZGRDYwMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9IndoaXRlIi8+CiAgPHJlY3QgeD0iMjAiIHk9IjIwIiB3aWR0aD0iNDcyIiBoZWlnaHQ9IjQ3MiIgcng9IjEwMCIgZmlsbD0idXJsKCNnKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU2LCAxNDApIj4KICAgIDxjaXJjbGUgY3g9IjYwIiBjeT0iMjIwIiByPSI0NSIgZmlsbD0iIzMzMyIvPgogICAgPGNpcmNsZSBjeD0iNjAiIGN5PSIyMjAiIHI9IjIyIiBmaWxsPSIjNjY2Ii8+CiAgICA8Y2lyY2xlIGN4PSIzNDAiIGN5PSIyMjAiIHI9IjQ1IiBmaWxsPSIjMzMzIi8+CiAgICA8Y2lyY2xlIGN4PSIzNDAiIGN5PSIyMjAiIHI9IjIyIiBmaWxsPSIjNjY2Ii8+CiAgICA8cGF0aCBkPSJNMjAsMTgwIEwzODAsMTgwIEwzODAsMjEwIFEzODAsMjI1IDM2NSwyMjUgTDM1LDIyNSBRMjAsMjI1IDIwLDIxMCBaIiBmaWxsPSIjNDQ0Ii8+CiAgICA8cmVjdCB4PSIyMCIgeT0iODAiIHdpZHRoPSIzNjAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRkZCMzAwIi8+CiAgICA8cmVjdCB4PSIyMCIgeT0iMTYwIiB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjRTY0QTE5Ii8+CiAgICA8cGF0aCBkPSJNNEMwLDIwIEwzNjAsMjAgUTM4MCwyMCAzODAsNDAgTDM4MCw4MCBMMjAsODAgTDIwLDQwIFEyMCwyMCA0MCwyMCBaIiBmaWxsPSIjRkZGOEUxIi8+CiAgICA8cmVjdCB4PSI0MCIgeT0iNDAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI2MCIgcng9IjgiIGZpbGw9IiNCM0U1RkMiLz4KICAgIDxyZWN0IHg9IjE0MCIgeT0iNDAiIHdpZHRoPSIxMDAiIGhlaWdodD0iNjAiIHJ4PSI4IiBmaWxsPSIjQjNFNUZDIi8+CiAgICA8cmVjdCB4PSIyNjAiIHk9IjQwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjYwIiByeD0iOCIgZmlsbD0iI0IzRTVGQyIvPgogICAgPHJlY3QgeD0iMTUiIHk9IjE4MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjI1IiByeD0iNSIgZmlsbD0iI0ZGRkRFNyIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSIxODAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyNSIgcng9IjIiIGZpbGw9IiNEMzJGMmYiLz4KICA8L2c+Cjwvc3ZnPg==`;
 
 const INITIAL_SCHOOLS: Schools = {
   'SEL999': { id: 'S4', name: 'Seoul Global School', logo: '🌏', routes: ['Gangnam Line', 'Hannam Shuttle', 'Mapo Express'], driverName: 'Kim Bus' },
@@ -216,7 +217,7 @@ function App() {
         <div class="splash-screen anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; border: none; padding: 60px 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.12);">
           <div class="brand-container" style="margin-bottom: 40px; display: flex; flex-direction: column; align-items: center;">
             <div style="width: 175px; height: 175px; background: linear-gradient(135deg, #FFF9C4 0%, #FFD600 100%); border-radius: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(255,193,7,0.4); border: 5px solid white;">
-              <!-- translateY(-24px)로 최종 미세 조정 -->
+              <!-- translateY(-24px)로 최종 미세 조정된 커스텀 버스 로고 -->
               <img src=${BUS_ICON_URL} alt="Cute School Bus" style="width: 135px; height: 135px; object-fit: contain; transform: translateY(-24px); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));" />
             </div>
             <h1 style="font-size: 2.8rem; letter-spacing: -1.8px; margin-bottom: 8px; color: #1A73E8; font-weight: 900;">BusBuddy <span style="color: #FFB300;">PRO</span></h1>
