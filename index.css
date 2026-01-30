@@ -6,7 +6,7 @@
   --danger: #D93025;
   --danger-bright: #FF4B2B;
   --success: #1E8E3E;
-  --bg-gradient: radial-gradient(circle at top left, #1e3c72, #2a5298);
+  --bg-gradient: linear-gradient(135deg, #7FB3FF 0%, #4285F4 100%);
   --surface: #FFFFFF;
   --text-main: #202124;
   --text-sub: #5F6368;
