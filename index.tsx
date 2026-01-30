@@ -91,10 +91,10 @@ function GoogleMap({ location, isLive }: { location: Location | null, isLive: bo
 
   if (!mapLoaded) {
     return html`
-      <div class="map-placeholder" style="height: 100%; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+      <div class="map-placeholder" style="height: 100%; display: flex; align-items: center; justify-content: center; background: #ffffff;">
         <div class="placeholder-content" style="text-align: center;">
           <div class="pulse-icon" style="font-size: 3rem; animation: bounce 2s infinite;">📍</div>
-          <p style="margin-top: 10px; font-weight: 500; color: #64748b;">Connecting Satellite...</p>
+          <p style="margin-top: 10px; font-weight: 500; color: #1A73E8;">Connecting Satellite...</p>
         </div>
       </div>
     `;
@@ -130,7 +130,7 @@ function ChatView({ role, messages, onSendMessage }: { role: string, messages: M
       <div class="chat-controls">
         <div class="quick-tags" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px;">
           ${quickMsgs.map((m: string) => html`
-            <button class="tag-btn" style="white-space: nowrap; padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 20px; background: #f8fafc; font-size: 0.85rem;" onClick=${() => onSendMessage(m, true)}>${m}</button>
+            <button class="tag-btn" style="white-space: nowrap; padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 20px; background: #ffffff; font-size: 0.85rem;" onClick=${() => onSendMessage(m, true)}>${m}</button>
           `)}
         </div>
         <div class="chat-input-area">
@@ -212,11 +212,11 @@ function App() {
 
   if (!role) {
     return html`
-      <div class="centered-view" style="background: #F8F9FA;">
-        <div class="splash-screen anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; border: none; padding: 60px 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.12);">
+      <div class="centered-view" style="background: #ffffff;">
+        <div class="splash-screen anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; border: none; padding: 60px 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.12);">
           <div class="brand-container" style="margin-bottom: 40px; display: flex; flex-direction: column; align-items: center;">
-            <div style="width: 175px; height: 175px; background: linear-gradient(135deg, #FFF9C4 0%, #FFD600 100%); border-radius: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 15px 35px rgba(255,193,7,0.4); border: 5px solid white;">
-              <!-- translateY(-24px)로 시각적 정중앙 정밀 보정 -->
+            <div style="width: 175px; height: 175px; background: linear-gradient(135deg, #FFF9C4 0%, #FFD600 100%); border-radius: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(255,193,7,0.4); border: 5px solid white;">
+              <!-- translateY(-24px)로 최종 미세 조정 -->
               <img src=${BUS_ICON_URL} alt="Cute School Bus" style="width: 135px; height: 135px; object-fit: contain; transform: translateY(-24px); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));" />
             </div>
             <h1 style="font-size: 2.8rem; letter-spacing: -1.8px; margin-bottom: 8px; color: #1A73E8; font-weight: 900;">BusBuddy <span style="color: #FFB300;">PRO</span></h1>
@@ -234,8 +234,8 @@ function App() {
 
   if (!selectedSchool) {
     return html`
-      <div class="centered-view" style="background: #F8F9FA;">
-        <div class="auth-box anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; padding: 50px 30px; border: none; box-shadow: 0 25px 50px rgba(0,0,0,0.12);">
+      <div class="centered-view" style="background: #ffffff;">
+        <div class="auth-box anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; padding: 50px 30px; border: none; box-shadow: 0 30px 60px rgba(0,0,0,0.12);">
           <button class="icon-btn" style="float: left; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #1A73E8;" onClick=${() => setRole(null)}>←</button>
           <div style="font-size: 5rem; margin-bottom: 25px;">🏫</div>
           <h2 style="font-size: 1.9rem; font-weight: 900; color: #1A73E8;">School Login</h2>
@@ -255,7 +255,6 @@ function App() {
     `;
   }
 
-  // --- (나머지 렌더링 코드 유지) ---
   if (role === 'admin') {
     return html`
       <div class="app-container anim-fade-in" style="background: white; min-height: 100vh;">
