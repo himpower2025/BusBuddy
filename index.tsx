@@ -31,6 +31,9 @@ interface Location {
 }
 
 // --- Constants ---
+// 전세계적으로 통용되는 노란색 스쿨 버스 3D 이모지 스타일 이미지
+const BUS_ICON_URL = 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f68c/512.png';
+
 const INITIAL_SCHOOLS: Schools = {
   'SEL999': { id: 'S4', name: 'Seoul Global School', logo: '🌏', routes: ['Gangnam Line', 'Hannam Shuttle', 'Mapo Express'], driverName: 'Kim Bus' },
   'PAE101': { id: 'S1', name: 'Palo Alto Elementary', logo: '🏫', routes: ['Route Gold', 'Route Silver'], driverName: 'John Doe' },
@@ -76,8 +79,8 @@ function GoogleMap({ location, isLive }: { location: Location | null, isLive: bo
           map: mapInstance.current,
           title: "School Bus",
           icon: {
-            url: 'https://cdn-icons-png.flaticon.com/512/3069/3069112.png',
-            scaledSize: new (window as any).google.maps.Size(40, 40),
+            url: BUS_ICON_URL,
+            scaledSize: new (window as any).google.maps.Size(50, 50),
           }
         });
       } else {
@@ -209,14 +212,12 @@ function App() {
     setTimeout(() => setSosActive(false), 5000);
   };
 
-  // --- Main Render Logic ---
-  
   if (!role) {
     return html`
       <div class="centered-view">
         <div class="splash-screen anim-fade-in">
           <div class="brand-container" style="margin-bottom: 30px;">
-            <div class="app-icon-main" style="font-size: 4rem;">🚌</div>
+            <img src=${BUS_ICON_URL} alt="BusBuddy Logo" style="width: 140px; height: 140px; margin-bottom: 20px; object-fit: contain;" />
             <h1>BusBuddy <span>PRO</span></h1>
             <p style="color: #666;">SafetyFirst Transportation</p>
           </div>
