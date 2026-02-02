@@ -30,9 +30,88 @@ interface Location {
   longitude: number;
 }
 
-// --- Constants ---
-// 사용자가 요청한 이미지(노란 박스 + 흰색 테두리 + 옆모습 버스)를 100% 재현한 커스텀 SVG 데이터 URI
-const BUS_ICON_URL = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRkZGOUM0Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0ZGRDYwMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9IndoaXRlIi8+CiAgPHJlY3QgeD0iMjAiIHk9IjIwIiB3aWR0aD0iNDcyIiBoZWlnaHQ9IjQ3MiIgcng9IjEwMCIgZmlsbD0idXJsKCNnKSIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU2LCAxNDApIj4KICAgIDxjaXJjbGUgY3g9IjYwIiBjeT0iMjIwIiByPSI0NSIgZmlsbD0iIzMzMyIvPgogICAgPGNpcmNsZSBjeD0iNjAiIGN5PSIyMjAiIHI9IjIyIiBmaWxsPSIjNjY2Ii8+CiAgICA8Y2lyY2xlIGN4PSIzNDAiIGN5PSIyMjAiIHI9IjQ1IiBmaWxsPSIjMzMzIi8+CiAgICA8Y2lyY2xlIGN4PSIzNDAiIGN5PSIyMjAiIHI9IjIyIiBmaWxsPSIjNjY2Ii8+CiAgICA8cGF0aCBkPSJNMjAsMTgwIEwzODAsMTgwIEwzODAsMjEwIFEzODAsMjI1IDM2NSwyMjUgTDM1LDIyNSBRMjAsMjI1IDIwLDIxMCBaIiBmaWxsPSIjNDQ0Ii8+CiAgICA8cmVjdCB4PSIyMCIgeT0iODAiIHdpZHRoPSIzNjAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRkZCMzAwIi8+CiAgICA8cmVjdCB4PSIyMCIgeT0iMTYwIiB3aWR0aD0iMzYwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjRTY0QTE5Ii8+CiAgICA8cGF0aCBkPSJNNEMwLDIwIEwzNjAsMjAgUTM4MCwyMCAzODAsNDAgTDM4MCw4MCBMMjAsODAgTDIwLDQwIFEyMCwyMCA0MCwyMCBaIiBmaWxsPSIjRkZGOEUxIi8+CiAgICA8cmVjdCB4PSI0MCIgeT0iNDAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI2MCIgcng9IjgiIGZpbGw9IiNCM0U1RkMiLz4KICAgIDxyZWN0IHg9IjE0MCIgeT0iNDAiIHdpZHRoPSIxMDAiIGhlaWdodD0iNjAiIHJ4PSI4IiBmaWxsPSIjQjNFNUZDIi8+CiAgICA8cmVjdCB4PSIyNjAiIHk9IjQwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjYwIiByeD0iOCIgZmlsbD0iI0IzRTVGQyIvPgogICAgPHJlY3QgeD0iMTUiIHk9IjE4MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjI1IiByeD0iNSIgZmlsbD0iI0ZGRkRFNyIvPgogICAgPHJlY3QgeD0iMzc1IiB5PSIxODAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyNSIgcng9IjIiIGZpbGw9IiNEMzJGMmYiLz4KICA8L2c+Cjwvc3ZnPg==`;
+/**
+ * BusLogoSVG: 이모티콘 스타일의 꼬마 스쿨버스
+ * - 하단에 독립된 통통한 타이어를 배치하여 지하철 느낌 제거
+ * - 캐릭터 느낌의 큰 눈과 입(그릴) 배치
+ * - 젤리처럼 쫀득하게 튀어오르는 애니메이션 적용
+ */
+const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
+  <svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="bus-emoticon-anim">
+    <!-- 바닥 그림자 (바운스 연동) -->
+    <ellipse cx="256" cy="460" rx="80" ry="12" fill="rgba(0,0,0,0.12)" class="shadow-anim" />
+    
+    <g transform="translate(256, 280)"> <!-- 위치를 260에서 280으로 내려서 상단 이탈 방지 -->
+      <!-- 1. 통통한 바퀴 (차체 아래로 확실히 노출) -->
+      <g class="wheels-group">
+        <rect x="-135" y="145" width="55" height="50" rx="20" fill="#263238" />
+        <rect x="80" y="145" width="55" height="50" rx="20" fill="#263238" />
+        <circle cx="-107" cy="170" r="10" fill="#546E7A" />
+        <circle cx="107" cy="170" r="10" fill="#546E7A" />
+      </g>
+
+      <!-- 2. 버스 몸체 (둥근 세로형 박스) -->
+      <rect x="-140" y="-180" width="280" height="340" rx="65" fill="#FFD600" stroke="#FBC02D" stroke-width="6" />
+      
+      <!-- 상단 루프 하이라이트 -->
+      <path d="M -140 -120 Q -140 -180 0 -180 Q 140 -180 140 -120 L 140 -90 L -140 -90 Z" fill="#FFFDE7" opacity="0.6" />
+
+      <!-- 3. 스쿨버스 블랙 스트라이프 (전형적인 특징) -->
+      <g opacity="0.8">
+        <rect x="-140" y="35" width="280" height="8" fill="#37474F" />
+        <rect x="-140" y="55" width="280" height="8" fill="#37474F" />
+      </g>
+
+      <!-- 4. 커다란 앞유리 (맑은 눈) -->
+      <rect x="-115" y="-135" width="230" height="145" rx="35" fill="#81D4FA" stroke="#E1F5FE" stroke-width="5" />
+      <!-- 반사광 반짝임 -->
+      <circle cx="-80" cy="-100" r="12" fill="white" opacity="0.4" />
+      <path d="M 40 -110 L 80 -110 Q 95 -110 95 -95 L 95 -40" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" opacity="0.3" />
+
+      <!-- 5. 캐릭터 눈망울 헤드라이트 -->
+      <g>
+        <circle cx="-90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
+        <circle cx="-100" cy="85" r="12" fill="#212121" />
+        <circle cx="-104" cy="81" r="4" fill="white" />
+        
+        <circle cx="90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
+        <circle cx="80" cy="85" r="12" fill="#212121" />
+        <circle cx="84" cy="81" r="4" fill="white" />
+      </g>
+
+      <!-- 6. 앙증맞은 그릴 (버스 얼굴) -->
+      <rect x="-45" y="85" width="90" height="35" rx="12" fill="#455A64" />
+      <path d="M -25 95 L 25 95 M -25 102 L 25 102 M -25 109 L 25 109" stroke="#90A4AE" stroke-width="3" stroke-linecap="round" />
+
+      <!-- 7. 작고 귀여운 사이드 미러 -->
+      <circle cx="-165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />
+      <circle cx="165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />
+
+      <!-- 8. 루프 안전등 -->
+      <circle cx="-80" cy="-195" r="16" fill="#F44336" stroke="white" stroke-width="4" />
+      <circle cx="80" cy="-195" r="16" fill="#F44336" stroke="white" stroke-width="4" />
+
+      <!-- 9. STOP 표지판 (애니메이션 포인트) -->
+      <g transform="translate(-170, 20)" class="stop-sign-shake">
+        <circle r="25" fill="#D32F2F" stroke="white" stroke-width="2" />
+        <text y="5" font-family="Arial" font-size="10" font-weight="900" fill="white" text-anchor="middle">STOP</text>
+      </g>
+    </g>
+  </svg>
+`;
+
+const getBusMarkerURI = () => {
+  const svg = `
+    <svg width="60" height="60" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(256, 250) scale(0.8)">
+        <rect x="-140" y="-180" width="280" height="340" rx="65" fill="#FFD600" />
+        <rect x="-115" y="-135" width="230" height="145" rx="35" fill="#81D4FA" />
+        <circle cx="-90" cy="95" r="30" fill="white" />
+        <circle cx="90" cy="95" r="30" fill="white" />
+      </g>
+    </svg>`;
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+};
 
 const INITIAL_SCHOOLS: Schools = {
   'SEL999': { id: 'S4', name: 'Seoul Global School', logo: '🌏', routes: ['Gangnam Line', 'Hannam Shuttle', 'Mapo Express'], driverName: 'Kim Bus' },
@@ -43,8 +122,6 @@ const INITIAL_MESSAGES: Message[] = [
   { id: 1, sender: 'Teacher', text: 'Good morning! Bus is departing on time.', time: '08:00 AM', isBroadcast: true },
   { id: 2, sender: 'Parent (Emily)', text: 'Emily will be at the stop 2 mins late.', time: '08:15 AM', isBroadcast: false },
 ];
-
-// --- Components ---
 
 function GoogleMap({ location, isLive }: { location: Location | null, isLive: boolean }) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -79,8 +156,8 @@ function GoogleMap({ location, isLive }: { location: Location | null, isLive: bo
           map: mapInstance.current,
           title: "School Bus",
           icon: {
-            url: BUS_ICON_URL,
-            scaledSize: new (window as any).google.maps.Size(55, 55),
+            url: getBusMarkerURI(),
+            scaledSize: new (window as any).google.maps.Size(60, 60),
           }
         });
       } else {
@@ -92,10 +169,10 @@ function GoogleMap({ location, isLive }: { location: Location | null, isLive: bo
 
   if (!mapLoaded) {
     return html`
-      <div class="map-placeholder" style="height: 100%; display: flex; align-items: center; justify-content: center; background: #ffffff;">
-        <div class="placeholder-content" style="text-align: center;">
-          <div class="pulse-icon" style="font-size: 3rem; animation: bounce 2s infinite;">📍</div>
-          <p style="margin-top: 10px; font-weight: 500; color: #1A73E8;">Connecting Satellite...</p>
+      <div class="map-placeholder">
+        <div class="placeholder-content">
+          <div class="pulse-icon">📍</div>
+          <p>Connecting Satellite...</p>
         </div>
       </div>
     `;
@@ -120,25 +197,23 @@ function ChatView({ role, messages, onSendMessage }: { role: string, messages: M
       <div class="chat-messages">
         ${messages.map((msg: Message) => html`
           <div class="msg-bubble ${msg.isBroadcast ? 'broadcast' : ''} ${msg.sender.includes(role === 'driver' ? 'Teacher' : 'Parent') ? 'mine' : 'theirs'}">
-            <div class="msg-sender" style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px;">${msg.isBroadcast ? '📢 Announcement' : msg.sender}</div>
+            <div class="msg-sender">${msg.isBroadcast ? '📢 Announcement' : msg.sender}</div>
             <div class="msg-text">${msg.text}</div>
-            <div class="msg-time" style="font-size: 0.7rem; text-align: right; margin-top: 4px;">${msg.time}</div>
+            <div class="msg-time">${msg.time}</div>
           </div>
         `)}
         <div ref=${chatEndRef}></div>
       </div>
       
       <div class="chat-controls">
-        <div class="quick-tags" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px;">
+        <div class="quick-tags">
           ${quickMsgs.map((m: string) => html`
-            <button class="tag-btn" style="white-space: nowrap; padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 20px; background: #ffffff; font-size: 0.85rem;" onClick=${() => onSendMessage(m, true)}>${m}</button>
+            <button class="tag-btn" onClick=${() => onSendMessage(m, true)}>${m}</button>
           `)}
         </div>
         <div class="chat-input-area">
           <input type="text" placeholder="Type a message..." value=${input} onInput=${(e: any) => setInput(e.target.value)} />
-          <button class="send-btn" onClick=${() => { if(input) { onSendMessage(input, false); setInput(''); } }}>
-             🚀
-          </button>
+          <button class="send-btn" onClick=${() => { if(input) { onSendMessage(input, false); setInput(''); } }}>🚀</button>
         </div>
       </div>
     </div>
@@ -159,7 +234,6 @@ function App() {
   const [activeTab, setActiveTab] = useState('map');
   const [location, setLocation] = useState<Location | null>(null);
   const [isLive, setIsLive] = useState(false);
-  const [newRouteName, setNewRouteName] = useState('');
   const [sosActive, setSosActive] = useState(false);
   const [studentStatus, setStudentStatus] = useState('Wait');
   
@@ -213,20 +287,19 @@ function App() {
 
   if (!role) {
     return html`
-      <div class="centered-view" style="background: #ffffff;">
-        <div class="splash-screen anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; border: none; padding: 60px 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.12);">
-          <div class="brand-container" style="margin-bottom: 40px; display: flex; flex-direction: column; align-items: center;">
-            <div style="width: 175px; height: 175px; background: linear-gradient(135deg, #FFF9C4 0%, #FFD600 100%); border-radius: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(255,193,7,0.4); border: 5px solid white;">
-              <!-- translateY(-24px)로 최종 미세 조정된 커스텀 버스 로고 -->
-              <img src=${BUS_ICON_URL} alt="Cute School Bus" style="width: 135px; height: 135px; object-fit: contain; transform: translateY(-24px); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));" />
+      <div class="app-viewport splash-bg anim-fade-in">
+        <div class="splash-card">
+          <div class="brand-container">
+            <div class="logo-box-gradient">
+              <${BusLogoSVG} size=${170} />
             </div>
-            <h1 style="font-size: 2.8rem; letter-spacing: -1.8px; margin-bottom: 8px; color: #1A73E8; font-weight: 900;">BusBuddy <span style="color: #FFB300;">PRO</span></h1>
-            <p style="color: #1A73E8; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.85;">Smart School Transportation</p>
+            <h1 class="brand-title">BusBuddy <span class="brand-pro">PRO</span></h1>
+            <p class="brand-subtitle">Smart School Transportation</p>
           </div>
-          <div class="role-selection-area" style="display: flex; flex-direction: column; gap: 18px; width: 100%;">
-            <button class="action-btn" style="background: #1A73E8; height: 62px; border-radius: 18px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(26,115,232,0.2);" onClick=${() => setRole('driver')}>🧢 Teacher / Driver</button>
-            <button class="action-btn" style="background: #34A853; height: 62px; border-radius: 18px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(52,168,83,0.2);" onClick=${() => setRole('parent')}>🏠 Parent</button>
-            <button class="action-btn" style="background: #5F6368; height: 62px; border-radius: 18px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1);" onClick=${() => setRole('admin')}>🏢 School Admin</button>
+          <div class="role-selection-area">
+            <button class="role-btn driver" onClick=${() => setRole('driver')}>🧢 Teacher / Driver</button>
+            <button class="role-btn parent" onClick=${() => setRole('parent')}>🏠 Parent</button>
+            <button class="role-btn admin" onClick=${() => setRole('admin')}>🏢 School Admin</button>
           </div>
         </div>
       </div>
@@ -235,115 +308,37 @@ function App() {
 
   if (!selectedSchool) {
     return html`
-      <div class="centered-view" style="background: #ffffff;">
-        <div class="auth-box anim-fade-in" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 40px; padding: 50px 30px; border: none; box-shadow: 0 30px 60px rgba(0,0,0,0.12);">
-          <button class="icon-btn" style="float: left; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #1A73E8;" onClick=${() => setRole(null)}>←</button>
-          <div style="font-size: 5rem; margin-bottom: 25px;">🏫</div>
-          <h2 style="font-size: 1.9rem; font-weight: 900; color: #1A73E8;">School Login</h2>
-          <p style="margin: 15px 0 35px; color: #1A73E8; font-weight: 500; font-size: 1.1rem;">Enter your 6-digit access code.</p>
+      <div class="app-viewport splash-bg anim-fade-in">
+        <div class="auth-box">
+          <button class="back-btn" onClick=${() => setRole(null)}>←</button>
+          <div class="auth-icon">🏫</div>
+          <h2 class="auth-title">School Login</h2>
+          <p class="auth-desc">Enter your school access code.</p>
           <input 
-            style="width: 100%; padding: 22px; border: 3px solid white; background: rgba(255,255,255,0.8); border-radius: 22px; font-size: 1.8rem; text-align: center; letter-spacing: 10px; font-weight: 900; color: #1A73E8; margin-bottom: 30px; outline: none; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);"
+            class="code-input"
             type="text" placeholder="SEL999" maxlength="6"
             value=${schoolCode} onInput=${(e: any) => setSchoolCode(e.target.value)}
           />
-          <button class="action-btn" style="width: 100%; height: 68px; font-size: 1.3rem; border-radius: 22px; background: #1A73E8;" onClick=${handleVerifyCode}>Connect</button>
-          ${codeError && html`<p style="color: #D93025; font-size: 1.05rem; margin-top: 20px; font-weight: 800;">⚠️ ${codeError}</p>`}
-          <div style="margin-top: 35px; padding: 18px; background: rgba(255,255,255,0.5); border-radius: 18px; border: 1px dashed #1A73E8;">
-            <small style="color: #1A73E8; font-weight: 800; font-size: 0.95rem;">Demo: SEL999 / PAE101</small>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  if (role === 'admin') {
-    return html`
-      <div class="app-container anim-fade-in" style="background: white; min-height: 100vh;">
-        <header class="tracker-header">
-          <button style="background:none; border:none; font-size: 1.2rem; cursor:pointer;" onClick=${() => setSelectedSchool(null)}>←</button>
-          <div style="text-align: center;">
-            <small style="font-weight: 800; color: #1A73E8; text-transform: uppercase;">Admin Hub</small>
-            <h3 style="font-size: 1.1rem;">${selectedSchool.name}</h3>
-          </div>
-          <div style="width: 24px;"></div>
-        </header>
-        <div style="padding: 20px;">
-          <div style="background: #F8F9FA; padding: 25px; border-radius: 25px; display: flex; justify-content: space-around; margin-bottom: 30px; border: 1px solid #E0E0E0;">
-            <div style="text-align:center;"><strong>${selectedSchool.code ? schools[selectedSchool.code].routes.length : 0}</strong><br/><small>Routes</small></div>
-            <div style="width: 1px; background: #E0E0E0;"></div>
-            <div style="text-align:center;"><strong style="color: #34A853;">Active</strong><br/><small>Fleet</small></div>
-          </div>
-          <h4 style="margin-bottom: 20px; font-weight: 900; color: #202124;">Route Management</h4>
-          <div style="display: flex; flex-direction: column; gap: 15px;">
-            ${selectedSchool.code && schools[selectedSchool.code].routes.map((r: string) => html`
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border: 1px solid #F1F3F4; border-radius: 20px;">
-                <span style="font-weight: 700;">${r}</span>
-                <button style="color: #D93025; border: none; background: #FCE8E6; padding: 10px 18px; border-radius: 12px; font-weight: 800; cursor: pointer;" onClick=${() => {
-                  if (!selectedSchool.code) return;
-                  const updated = {...schools};
-                  updated[selectedSchool.code].routes = updated[selectedSchool.code].routes.filter((item: string) => item !== r);
-                  setSchools(updated);
-                }}>Delete</button>
-              </div>
-            `)}
-            <div style="display: flex; gap: 12px; margin-top: 20px;">
-              <input style="flex: 1; padding: 18px; border: 2px solid #F1F3F4; border-radius: 18px; font-weight: 600;" type="text" placeholder="Route Name" value=${newRouteName} onInput=${(e: any) => setNewRouteName(e.target.value)} />
-              <button class="action-btn" style="width: 60px; height: 60px; font-size: 1.8rem; border-radius: 18px; background: #1A73E8;" onClick=${() => {
-                if(!newRouteName || !selectedSchool.code) return;
-                const updated = {...schools};
-                updated[selectedSchool.code].routes.push(newRouteName);
-                setSchools(updated);
-                setNewRouteName('');
-              }}>+</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  if (!route) {
-    return html`
-      <div class="app-container anim-fade-in">
-        <header class="tracker-header">
-          <button style="background:none; border:none; font-size: 1.2rem; cursor:pointer;" onClick=${() => setSelectedSchool(null)}>←</button>
-          <div style="text-align: center;">
-            <small style="color: #5F6368; font-weight: bold;">${selectedSchool.name}</small>
-            <h3 style="font-weight: 900; font-size: 1.3rem;">Select Route</h3>
-          </div>
-          <div style="width: 24px;"></div>
-        </header>
-        <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
-          ${selectedSchool.code && schools[selectedSchool.code].routes.map((r: string) => html`
-            <div style="padding: 25px; background: white; border: 1px solid #F1F3F4; border-radius: 25px; display: flex; align-items: center; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05);" onClick=${() => setRoute(r)}>
-              <div style="width: 70px; height: 70px; background: #FFF9C4; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-right: 25px; border: 3px solid #FFC107;">
-                <img src=${BUS_ICON_URL} style="width: 50px; height: 50px; object-fit: contain;" />
-              </div>
-              <div style="flex: 1;">
-                <h4 style="margin-bottom: 5px; font-size: 1.2rem; color: #202124; font-weight: 800;">${r}</h4>
-                <p style="font-size: 0.95rem; color: #5F6368;">Driver: ${selectedSchool.driverName}</p>
-              </div>
-              <div style="color: #1A73E8; font-size: 1.8rem; font-weight: 900;">→</div>
-            </div>
-          `)}
+          <button class="action-btn" onClick=${handleVerifyCode}>Connect School</button>
+          ${codeError && html`<p class="error-text">⚠️ ${codeError}</p>`}
         </div>
       </div>
     `;
   }
 
   return html`
-    <div class="app-container app-shell anim-fade-in">
+    <div class="app-container splash-bg anim-fade-in">
       <header class="tracker-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-           <div style="width: 14px; height: 14px; border-radius: 50%; background: ${isLive ? '#34A853' : '#DADCE0'};"></div>
-           <div>
-             <h3 style="font-size: 1.15rem; font-weight: 900; color: #1A73E8;">${activeTab === 'chat' ? 'Comm. Channel' : route}</h3>
-             <small style="color: #5F6368; font-weight: 700;">${selectedSchool.name}</small>
+        <div class="header-left">
+           <div class="status-dot ${isLive ? 'online' : ''}"></div>
+           <div class="header-info">
+             <h3 class="header-title">${activeTab === 'chat' ? 'Comm. Channel' : (route || 'Select Route')}</h3>
+             <small class="header-school">${selectedSchool.name}</small>
            </div>
         </div>
         ${role === 'driver' 
-          ? html`<button style="background: #D93025; color: white; border: none; padding: 12px 28px; border-radius: 18px; font-weight: 900; cursor: pointer;" onClick=${triggerSOS}>SOS</button>`
-          : html`<div style="background: #E8F0FE; padding: 12px 20px; border-radius: 25px; font-size: 0.95rem; color: #1A73E8; font-weight: 800;">ETA: <span style="font-size: 1.15rem;">${isLive ? '12 min' : '--'}</span></div>`
+          ? html`<button class="sos-btn" onClick=${triggerSOS}>SOS</button>`
+          : html`<div class="eta-badge">ETA: <span>${isLive ? '12 min' : '--'}</span></div>`
         }
       </header>
 
@@ -351,27 +346,22 @@ function App() {
         ${activeTab === 'map' ? html`
           <${GoogleMap} location=${location} isLive=${isLive} />
           <div class="control-overlay">
-            <div class="panel-card" style="border-top: 8px solid #FFC107; border-radius: 30px;">
+            <div class="panel-card">
               ${role === 'driver' ? html`
-                <button class="main-cta ${isLive ? 'stop' : 'start'}" style="height: 70px; font-size: 1.4rem; border-radius: 22px; font-weight: 900;" onClick=${isLive ? stopTracking : startTracking}>
-                  ${isLive ? html`🛑 Stop Broadcasting` : html`🚀 Start Shift`}
+                <button class="main-cta ${isLive ? 'stop' : 'start'}" onClick=${isLive ? stopTracking : startTracking}>
+                  ${isLive ? html`🛑 Stop Shift` : html`🚀 Start Shift`}
                 </button>
-                <div style="display: flex; justify-content: space-around; text-align: center; background: #F8F9FA; padding: 20px; border-radius: 20px; border: 1px solid #E0E0E0;">
-                   <div><small style="font-weight: 800; color: #5F6368;">STUDENTS</small><br/><strong style="font-size: 1.5rem; color: #202124;">18</strong></div>
-                   <div style="width: 1px; background: #E0E0E0;"></div>
-                   <div><small style="font-weight: 800; color: #5F6368;">SPEED</small><br/><strong style="font-size: 1.5rem; color: #1A73E8;">${isLive ? '32' : '0'} km/h</strong></div>
-                </div>
               ` : html`
-                <div style="display: flex; align-items: center; gap: 20px; padding: 5px;">
-                   <div style="width: 65px; height: 65px; background: #FFF9C4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; border: 4px solid #FFC107;">🧒</div>
-                   <div style="flex: 1;">
-                     <h4 style="margin-bottom: 5px; font-weight: 900; color: #202124;">Emily Boarding</h4>
-                     <span style="font-size: 1.1rem; font-weight: 800; color: ${studentStatus === 'Arrived' ? '#1E8E3E' : '#1A73E8'}; background: ${studentStatus === 'Arrived' ? '#E6F4EA' : '#E8F0FE'}; padding: 6px 15px; border-radius: 10px;">${studentStatus}</span>
+                <div class="student-info">
+                   <div class="avatar">🧒</div>
+                   <div class="student-meta">
+                     <h4 class="student-name">Emily Boarding</h4>
+                     <span class="status-tag ${studentStatus}">${studentStatus}</span>
                    </div>
-                   <button style="background: white; border: 3px solid #1A73E8; color: #1A73E8; padding: 15px 22px; border-radius: 20px; font-weight: 900; cursor: pointer;" onClick=${() => {
+                   <button class="update-btn" onClick=${() => {
                       const next = studentStatus === 'Wait' ? 'Boarded' : (studentStatus === 'Boarded' ? 'Arrived' : 'Wait');
                       setStudentStatus(next);
-                   }}>Update</button>
+                   }}>Status Update</button>
                 </div>
               `}
             </div>
@@ -381,13 +371,13 @@ function App() {
         `}
       </main>
 
-      ${sosActive && html`<div class="sos-fullscreen">🚨 EMERGENCY SOS 🚨<br/><span style="font-size: 1.8rem; margin-top: 20px;">Support Notified</span></div>`}
-
-      <nav class="main-tabs" style="height: 90px; border-top: 1px solid #E0E0E0;">
-         <button class=${activeTab === 'map' ? 'active' : ''} onClick=${() => setActiveTab('map')} style="font-weight: 900;"><i>📍</i>Map</button>
-         <button class=${activeTab === 'chat' ? 'active' : ''} onClick=${() => setActiveTab('chat')} style="font-weight: 900;"><i>💬</i>Chat</button>
-         <button onClick=${() => setRoute(null)} style="font-weight: 900;"><i>🔄</i>Change</button>
+      <nav class="main-tabs">
+         <button class=${activeTab === 'map' ? 'active' : ''} onClick=${() => setActiveTab('map')}><i>📍</i>Map</button>
+         <button class=${activeTab === 'chat' ? 'active' : ''} onClick=${() => setActiveTab('chat')}><i>💬</i>Chat</button>
+         <button onClick=${() => setRoute(null)}><i>🔄</i>Switch</button>
       </nav>
+      
+      ${sosActive && html`<div class="sos-fullscreen">⚠️ EMERGENCY SIGNAL SENT</div>`}
     </div>
   `;
 }
