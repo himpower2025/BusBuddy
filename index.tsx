@@ -41,7 +41,7 @@ const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
     <!-- 바닥 그림자 (바운스 연동) -->
     <ellipse cx="256" cy="460" rx="80" ry="12" fill="rgba(0,0,0,0.12)" class="shadow-anim" />
     
-    <g transform="translate(256, 280)"> <!-- 위치를 260에서 280으로 내려서 상단 이탈 방지 -->
+    <g transform="translate(256, 290)"> <!-- 위치를 280에서 290으로 더 내려서 상단 이탈 완벽 방지 -->
       <!-- 1. 통통한 바퀴 (차체 아래로 확실히 노출) -->
       <g class="wheels-group">
         <rect x="-135" y="145" width="55" height="50" rx="20" fill="#263238" />
