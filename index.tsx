@@ -55,11 +55,11 @@ const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
         <!-- Headlights/Eyes - 시선 정면(Center) 처리 -->
         <circle cx="-90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
         <circle cx="-90" cy="95" r="12" fill="#212121" />
-        <circle cx="-93" cy="92" r="4" fill="white" /> <!-- 눈부심 효과 -->
+        <circle cx="-90" cy="93" r="4" fill="white" /> <!-- 눈부심 효과 위치 조정 -->
         
         <circle cx="90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
         <circle cx="90" cy="95" r="12" fill="#212121" />
-        <circle cx="87" cy="92" r="4" fill="white" /> <!-- 눈부심 효과 -->
+        <circle cx="90" cy="93" r="4" fill="white" /> <!-- 눈부심 효과 위치 조정 -->
       </g>
       <rect x="-45" y="85" width="90" height="35" rx="12" fill="#455A64" />
       <circle cx="-165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />

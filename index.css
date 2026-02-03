@@ -5,8 +5,8 @@
   --accent: #FFD600;
   --danger: #D93025;
   --success: #1E8E3E;
-  /* 더 밝고 화사한 모닝 스카이 그라데이션 */
-  --bg-sky: linear-gradient(180deg, #F0F9FF 0%, #CDEBFF 100%);
+  /* 더욱 밝고 화사한 모닝 스카이 연하늘 그라데이션 */
+  --bg-sky: linear-gradient(180deg, #F8FDFF 0%, #E0F2FE 100%);
   --logo-yellow: linear-gradient(135deg, #FFF9C4 0%, #FFEB3B 50%, #FBC02D 100%);
   --radius-xl: 44px;
   --radius-lg: 32px;
@@ -43,7 +43,7 @@ html, body, #root {
   width: 100%;
   max-width: 440px;
   text-align: center;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.1);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.08);
   position: relative;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -58,7 +58,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 20px 50px rgba(251, 192, 45, 0.3);
+  box-shadow: 0 20px 50px rgba(251, 192, 45, 0.25);
   border: 10px solid white;
   overflow: hidden;
   padding: 10px;
