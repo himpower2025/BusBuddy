@@ -57,6 +57,12 @@ const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
       <!-- Windshield (Warm Beige Glass) -->
       <rect x="-115" y="-135" width="230" height="145" rx="35" fill="#FFF9E1" stroke="#F0E68C" stroke-width="5" />
       
+      <!-- STOP Sign - Centered on windshield -->
+      <g transform="translate(0, -35)" class="stop-sign-shake">
+        <circle r="25" fill="#D32F2F" stroke="white" stroke-width="2" />
+        <text y="5" font-family="Arial" font-size="10" font-weight="900" fill="white" text-anchor="middle">STOP</text>
+      </g>
+
       <!-- Headlights/Eyes (Center Focus) -->
       <g>
         <circle cx="-90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
@@ -66,12 +72,6 @@ const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
         <circle cx="90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
         <circle cx="90" cy="95" r="12" fill="#212121" />
         <circle cx="90" cy="92" r="4" fill="white" />
-      </g>
-      
-      <!-- STOP Sign - Moved to windshield area -->
-      <g transform="translate(-60, -35)" class="stop-sign-shake">
-        <circle r="25" fill="#D32F2F" stroke="white" stroke-width="2" />
-        <text y="5" font-family="Arial" font-size="10" font-weight="900" fill="white" text-anchor="middle">STOP</text>
       </g>
       
       <!-- Smiling Grille -->

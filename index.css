@@ -5,8 +5,8 @@
   --accent: #FFD600;
   --danger: #EF4444;
   --success: #10B981;
-  /* 노란색 버스를 화사하고 세련되게 부각시키는 페리윙클 인디고 그라데이션 */
-  --bg-sky: linear-gradient(135deg, #6366F1 0%, #818CF8 100%);
+  /* 노란색 버스를 화사하고 세련되게 부각시키는 소프트 페리윙클 그라데이션 */
+  --bg-sky: linear-gradient(135deg, #818CF8 0%, #C7D2FE 100%);
   --logo-yellow: linear-gradient(135deg, #FFF9C4 0%, #FFEB3B 50%, #FBC02D 100%);
   --radius-xl: 44px;
   --radius-lg: 32px;
@@ -43,7 +43,7 @@ html, body, #root {
   width: 100%;
   max-width: 440px;
   text-align: center;
-  box-shadow: 0 40px 100px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 40px 100px rgba(99, 102, 241, 0.15);
   position: relative;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -106,7 +106,7 @@ html, body, #root {
 
 @keyframes signWiggle {
   0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.1) rotate(-5deg); }
+  50% { transform: scale(1.1) rotate(-3deg); }
 }
 
 .anim-fade-in { animation: fadeInScaleUp 0.8s cubic-bezier(0.2, 1, 0.3, 1); }
