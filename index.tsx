@@ -52,10 +52,14 @@ const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
       <rect x="-115" y="-135" width="230" height="145" rx="35" fill="#81D4FA" stroke="#E1F5FE" stroke-width="5" />
       <circle cx="-80" cy="-100" r="12" fill="white" opacity="0.4" />
       <g>
+        <!-- Headlights/Eyes - 시선 정면(Center) 처리 -->
         <circle cx="-90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
-        <circle cx="-100" cy="85" r="12" fill="#212121" />
+        <circle cx="-90" cy="95" r="12" fill="#212121" />
+        <circle cx="-93" cy="92" r="4" fill="white" /> <!-- 눈부심 효과 -->
+        
         <circle cx="90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
-        <circle cx="80" cy="85" r="12" fill="#212121" />
+        <circle cx="90" cy="95" r="12" fill="#212121" />
+        <circle cx="87" cy="92" r="4" fill="white" /> <!-- 눈부심 효과 -->
       </g>
       <rect x="-45" y="85" width="90" height="35" rx="12" fill="#455A64" />
       <circle cx="-165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />
@@ -78,8 +82,8 @@ const getBusMarkerURI = () => {
         <rect x="-115" y="-135" width="230" height="145" rx="35" fill="white" opacity="0.9" />
         <circle cx="-90" cy="95" r="35" fill="white" />
         <circle cx="90" cy="95" r="35" fill="white" />
-        <circle cx="-100" cy="85" r="12" fill="#212121" />
-        <circle cx="80" cy="85" r="12" fill="#212121" />
+        <circle cx="-90" cy="95" r="12" fill="#212121" />
+        <circle cx="90" cy="95" r="12" fill="#212121" />
         <rect x="-45" y="85" width="90" height="35" rx="12" fill="#455A64" />
       </g>
     </svg>`;

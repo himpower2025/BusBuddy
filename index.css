@@ -5,7 +5,8 @@
   --accent: #FFD600;
   --danger: #D93025;
   --success: #1E8E3E;
-  --bg-sky: linear-gradient(180deg, #E1F5FE 0%, #81D4FA 100%);
+  /* 더 밝고 화사한 모닝 스카이 그라데이션 */
+  --bg-sky: linear-gradient(180deg, #F0F9FF 0%, #CDEBFF 100%);
   --logo-yellow: linear-gradient(135deg, #FFF9C4 0%, #FFEB3B 50%, #FBC02D 100%);
   --radius-xl: 44px;
   --radius-lg: 32px;
@@ -42,7 +43,7 @@ html, body, #root {
   width: 100%;
   max-width: 440px;
   text-align: center;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.2);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.1);
   position: relative;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -57,7 +58,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 20px 50px rgba(251, 192, 45, 0.4);
+  box-shadow: 0 20px 50px rgba(251, 192, 45, 0.3);
   border: 10px solid white;
   overflow: hidden;
   padding: 10px;
@@ -71,12 +72,11 @@ html, body, #root {
 .role-btn {
   height: 68px; border: none; border-radius: 24px; font-weight: 900; font-size: 1.25rem; color: white; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.role-btn.driver { background: #1A73E8; box-shadow: 0 12px 24px rgba(26, 115, 232, 0.3); }
-.role-btn.parent { background: #34A853; box-shadow: 0 12px 24px rgba(52, 168, 83, 0.3); }
-.role-btn.admin { background: #5F6368; box-shadow: 0 12px 24px rgba(95, 99, 104, 0.3); }
+.role-btn.driver { background: #1A73E8; box-shadow: 0 12px 24px rgba(26, 115, 232, 0.2); }
+.role-btn.parent { background: #34A853; box-shadow: 0 12px 24px rgba(52, 168, 83, 0.2); }
+.role-btn.admin { background: #5F6368; box-shadow: 0 12px 24px rgba(95, 99, 104, 0.2); }
 .role-btn:active { transform: scale(0.95); }
 
-/* Animations: Character Emoticon Bounce */
 .bus-emoticon-anim { 
   animation: emoticonSquashBounce 1.8s ease-in-out infinite;
   transform-origin: center bottom;
@@ -85,7 +85,7 @@ html, body, #root {
 @keyframes emoticonSquashBounce {
   0%, 100% { transform: translateY(0) scaleX(1) scaleY(1); }
   20% { transform: translateY(0) scaleX(1.1) scaleY(0.9); } 
-  50% { transform: translateY(-15px) scaleX(0.95) scaleY(1.1); } /* 높이를 -25에서 -15로 축소 */
+  50% { transform: translateY(-15px) scaleX(0.95) scaleY(1.1); }
   80% { transform: translateY(0) scaleX(1.05) scaleY(0.95); }
 }
 
@@ -115,7 +115,6 @@ html, body, #root {
   to { opacity: 1; transform: translateY(0) scale(1); } 
 }
 
-/* Dashboard & Common Styles */
 .tracker-header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.06); }
 .header-title { font-size: 1.3rem; font-weight: 950; color: #1A73E8; }
 
