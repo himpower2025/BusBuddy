@@ -32,66 +32,36 @@ interface Location {
 
 /**
  * BusLogoSVG: 이모티콘 스타일의 꼬마 스쿨버스
- * - 하단에 독립된 통통한 타이어를 배치하여 지하철 느낌 제거
- * - 캐릭터 느낌의 큰 눈과 입(그릴) 배치
- * - 젤리처럼 쫀득하게 튀어오르는 애니메이션 적용
  */
 const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
   <svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="bus-emoticon-anim">
-    <!-- 바닥 그림자 (바운스 연동) -->
     <ellipse cx="256" cy="460" rx="80" ry="12" fill="rgba(0,0,0,0.12)" class="shadow-anim" />
-    
-    <g transform="translate(256, 290)"> <!-- 위치를 280에서 290으로 더 내려서 상단 이탈 완벽 방지 -->
-      <!-- 1. 통통한 바퀴 (차체 아래로 확실히 노출) -->
+    <g transform="translate(256, 290)">
       <g class="wheels-group">
         <rect x="-135" y="145" width="55" height="50" rx="20" fill="#263238" />
         <rect x="80" y="145" width="55" height="50" rx="20" fill="#263238" />
         <circle cx="-107" cy="170" r="10" fill="#546E7A" />
         <circle cx="107" cy="170" r="10" fill="#546E7A" />
       </g>
-
-      <!-- 2. 버스 몸체 (둥근 세로형 박스) -->
       <rect x="-140" y="-180" width="280" height="340" rx="65" fill="#FFD600" stroke="#FBC02D" stroke-width="6" />
-      
-      <!-- 상단 루프 하이라이트 -->
       <path d="M -140 -120 Q -140 -180 0 -180 Q 140 -180 140 -120 L 140 -90 L -140 -90 Z" fill="#FFFDE7" opacity="0.6" />
-
-      <!-- 3. 스쿨버스 블랙 스트라이프 (전형적인 특징) -->
       <g opacity="0.8">
         <rect x="-140" y="35" width="280" height="8" fill="#37474F" />
         <rect x="-140" y="55" width="280" height="8" fill="#37474F" />
       </g>
-
-      <!-- 4. 커다란 앞유리 (맑은 눈) -->
       <rect x="-115" y="-135" width="230" height="145" rx="35" fill="#81D4FA" stroke="#E1F5FE" stroke-width="5" />
-      <!-- 반사광 반짝임 -->
       <circle cx="-80" cy="-100" r="12" fill="white" opacity="0.4" />
-      <path d="M 40 -110 L 80 -110 Q 95 -110 95 -95 L 95 -40" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" opacity="0.3" />
-
-      <!-- 5. 캐릭터 눈망울 헤드라이트 -->
       <g>
         <circle cx="-90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
         <circle cx="-100" cy="85" r="12" fill="#212121" />
-        <circle cx="-104" cy="81" r="4" fill="white" />
-        
         <circle cx="90" cy="95" r="35" fill="white" stroke="#FFF9C4" stroke-width="5" />
         <circle cx="80" cy="85" r="12" fill="#212121" />
-        <circle cx="84" cy="81" r="4" fill="white" />
       </g>
-
-      <!-- 6. 앙증맞은 그릴 (버스 얼굴) -->
       <rect x="-45" y="85" width="90" height="35" rx="12" fill="#455A64" />
-      <path d="M -25 95 L 25 95 M -25 102 L 25 102 M -25 109 L 25 109" stroke="#90A4AE" stroke-width="3" stroke-linecap="round" />
-
-      <!-- 7. 작고 귀여운 사이드 미러 -->
       <circle cx="-165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />
       <circle cx="165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />
-
-      <!-- 8. 루프 안전등 -->
       <circle cx="-80" cy="-195" r="16" fill="#F44336" stroke="white" stroke-width="4" />
       <circle cx="80" cy="-195" r="16" fill="#F44336" stroke="white" stroke-width="4" />
-
-      <!-- 9. STOP 표지판 (애니메이션 포인트) -->
       <g transform="translate(-170, 20)" class="stop-sign-shake">
         <circle r="25" fill="#D32F2F" stroke="white" stroke-width="2" />
         <text y="5" font-family="Arial" font-size="10" font-weight="900" fill="white" text-anchor="middle">STOP</text>
@@ -104,10 +74,13 @@ const getBusMarkerURI = () => {
   const svg = `
     <svg width="60" height="60" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
       <g transform="translate(256, 250) scale(0.8)">
-        <rect x="-140" y="-180" width="280" height="340" rx="65" fill="#FFD600" />
-        <rect x="-115" y="-135" width="230" height="145" rx="35" fill="#81D4FA" />
-        <circle cx="-90" cy="95" r="30" fill="white" />
-        <circle cx="90" cy="95" r="30" fill="white" />
+        <rect x="-140" y="-180" width="280" height="340" rx="65" fill="#FFD600" stroke="#FBC02D" stroke-width="6" />
+        <rect x="-115" y="-135" width="230" height="145" rx="35" fill="white" opacity="0.9" />
+        <circle cx="-90" cy="95" r="35" fill="white" />
+        <circle cx="90" cy="95" r="35" fill="white" />
+        <circle cx="-100" cy="85" r="12" fill="#212121" />
+        <circle cx="80" cy="85" r="12" fill="#212121" />
+        <rect x="-45" y="85" width="90" height="35" rx="12" fill="#455A64" />
       </g>
     </svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
