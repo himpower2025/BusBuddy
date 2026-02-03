@@ -31,7 +31,7 @@ interface Location {
 }
 
 /**
- * BusLogoSVG: 디테일이 살아있는 귀여운 스쿨버스
+ * BusLogoSVG: 디테일과 귀여움이 살아있는 웃는 스쿨버스
  */
 const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
   <svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="bus-emoticon-anim">
@@ -54,9 +54,8 @@ const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
       <circle cx="-165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />
       <circle cx="165" cy="-30" r="22" fill="#546E7A" stroke="white" stroke-width="3" />
       
-      <!-- Windshield (Beige/Warm Glass) -->
+      <!-- Windshield (Warm Beige Glass) -->
       <rect x="-115" y="-135" width="230" height="145" rx="35" fill="#FFF9E1" stroke="#F0E68C" stroke-width="5" />
-      <circle cx="-80" cy="-100" r="12" fill="white" opacity="0.4" />
       
       <!-- Headlights/Eyes (Center Focus) -->
       <g>
@@ -69,14 +68,16 @@ const BusLogoSVG = ({ size = 200 }: { size?: number }) => html`
         <circle cx="90" cy="92" r="4" fill="white" />
       </g>
       
-      <!-- STOP Sign on the side window area -->
-      <g transform="translate(-145, 10)" class="stop-sign-shake">
+      <!-- STOP Sign - Moved to windshield area -->
+      <g transform="translate(-60, -35)" class="stop-sign-shake">
         <circle r="25" fill="#D32F2F" stroke="white" stroke-width="2" />
         <text y="5" font-family="Arial" font-size="10" font-weight="900" fill="white" text-anchor="middle">STOP</text>
       </g>
       
-      <!-- Grille/Mouth -->
-      <rect x="-45" y="85" width="90" height="35" rx="12" fill="#455A64" />
+      <!-- Smiling Grille -->
+      <g transform="translate(-45, 85)">
+        <path d="M 10 10 H 80 M 10 18 H 80 M 10 26 H 80" stroke="#455A64" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+      </g>
     </g>
   </svg>
 `;

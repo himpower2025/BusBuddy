@@ -1,12 +1,12 @@
 
 :root {
-  --primary: #1A73E8;
-  --primary-light: #E8F0FE;
+  --primary: #6366F1;
+  --primary-light: #E0E7FF;
   --accent: #FFD600;
-  --danger: #D93025;
-  --success: #1E8E3E;
-  /* 세련된 사파이어 블루 그라데이션 - 노란색 버스를 돋보이게 함 */
-  --bg-sky: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+  --danger: #EF4444;
+  --success: #10B981;
+  /* 노란색 버스를 화사하고 세련되게 부각시키는 페리윙클 인디고 그라데이션 */
+  --bg-sky: linear-gradient(135deg, #6366F1 0%, #818CF8 100%);
   --logo-yellow: linear-gradient(135deg, #FFF9C4 0%, #FFEB3B 50%, #FBC02D 100%);
   --radius-xl: 44px;
   --radius-lg: 32px;
@@ -43,7 +43,7 @@ html, body, #root {
   width: 100%;
   max-width: 440px;
   text-align: center;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.2);
+  box-shadow: 0 40px 100px rgba(99, 102, 241, 0.2);
   position: relative;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -64,17 +64,17 @@ html, body, #root {
   padding: 10px;
 }
 
-.brand-title { font-size: 2.7rem; font-weight: 900; color: #1E3A8A; letter-spacing: -2.5px; }
-.brand-pro { color: #F57C00; }
-.brand-subtitle { font-weight: 700; color: #3B82F6; opacity: 0.9; text-transform: uppercase; font-size: 1rem; margin-top: 5px; letter-spacing: 2.5px; }
+.brand-title { font-size: 2.7rem; font-weight: 900; color: #4338CA; letter-spacing: -2.5px; }
+.brand-pro { color: #F59E0B; }
+.brand-subtitle { font-weight: 700; color: #6366F1; opacity: 0.9; text-transform: uppercase; font-size: 1rem; margin-top: 5px; letter-spacing: 2.5px; }
 
 .role-selection-area { display: flex; flex-direction: column; gap: 15px; margin-top: 40px; }
 .role-btn {
   height: 68px; border: none; border-radius: 24px; font-weight: 900; font-size: 1.25rem; color: white; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.role-btn.driver { background: #1E3A8A; box-shadow: 0 12px 24px rgba(30, 58, 138, 0.2); }
+.role-btn.driver { background: #6366F1; box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2); }
 .role-btn.parent { background: #10B981; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.2); }
-.role-btn.admin { background: #4B5563; box-shadow: 0 12px 24px rgba(75, 85, 99, 0.2); }
+.role-btn.admin { background: #64748B; box-shadow: 0 12px 24px rgba(100, 116, 139, 0.2); }
 .role-btn:active { transform: scale(0.95); }
 
 .bus-emoticon-anim { 
@@ -101,12 +101,12 @@ html, body, #root {
 
 .stop-sign-shake {
   animation: signWiggle 1.8s ease-in-out infinite;
-  transform-origin: 0 0;
+  transform-origin: center;
 }
 
 @keyframes signWiggle {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-10deg); }
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(-5deg); }
 }
 
 .anim-fade-in { animation: fadeInScaleUp 0.8s cubic-bezier(0.2, 1, 0.3, 1); }
@@ -116,12 +116,12 @@ html, body, #root {
 }
 
 .tracker-header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.06); }
-.header-title { font-size: 1.3rem; font-weight: 950; color: #1E3A8A; }
+.header-title { font-size: 1.3rem; font-weight: 950; color: #4338CA; }
 
 .map-container { flex: 1; position: relative; background: #f0f0f0; }
 .map-view { width: 100%; height: 100%; }
 
 .main-tabs { display: flex; background: white; padding: 12px 10px 30px; border-top: 1px solid #eee; }
-.main-tabs button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 700; color: #6B7280; font-size: 0.85rem; }
-.main-tabs button.active { color: #1E3A8A; }
+.main-tabs button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 700; color: #94A3B8; font-size: 0.85rem; }
+.main-tabs button.active { color: #6366F1; }
 .main-tabs button i { font-style: normal; font-size: 1.4rem; }
