@@ -5,8 +5,8 @@
   --accent: #FFD600;
   --danger: #EF4444;
   --success: #10B981;
-  /* 노란색 버스를 화사하고 세련되게 부각시키는 소프트 페리윙클 그라데이션 */
-  --bg-sky: linear-gradient(135deg, #818CF8 0%, #C7D2FE 100%);
+  /* 노란색 버스와 가장 세련되게 어우러지는 소프트 바닐라 & 샌드 그라데이션 */
+  --bg-sky: linear-gradient(135deg, #FDFCF0 0%, #F5F2E1 100%);
   --logo-yellow: linear-gradient(135deg, #FFF9C4 0%, #FFEB3B 50%, #FBC02D 100%);
   --radius-xl: 44px;
   --radius-lg: 32px;
@@ -125,3 +125,99 @@ html, body, #root {
 .main-tabs button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 700; color: #94A3B8; font-size: 0.85rem; }
 .main-tabs button.active { color: #6366F1; }
 .main-tabs button i { font-style: normal; font-size: 1.4rem; }
+
+/* Auth Box Specifics */
+.auth-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #4338CA;
+  margin-bottom: 10px;
+}
+
+.auth-desc {
+  color: #64748B;
+  font-weight: 500;
+  margin-bottom: 30px;
+}
+
+.code-input {
+  width: 100%;
+  height: 80px;
+  border: 3px solid #E2E8F0;
+  border-radius: 24px;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #4338CA;
+  letter-spacing: 8px;
+  margin-bottom: 25px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.code-input:focus {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px);
+}
+
+.action-btn {
+  width: 100%;
+  height: 68px;
+  border: none;
+  border-radius: 24px;
+  background: #6366F1;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
+}
+
+.action-btn:active {
+  transform: scale(0.96);
+}
+
+.back-btn {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 15px;
+  background: #F1F5F9;
+  color: #64748B;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.back-btn:hover {
+  background: #E2E8F0;
+  color: #4338CA;
+  transform: translateX(-3px);
+}
+
+.error-text {
+  margin-top: 15px;
+  color: #EF4444;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
