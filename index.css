@@ -68,6 +68,18 @@ html, body, #root {
 .brand-pro { color: #F59E0B; }
 .brand-subtitle { font-weight: 700; color: #6366F1; opacity: 0.9; text-transform: uppercase; font-size: 1rem; margin-top: 5px; letter-spacing: 2.5px; }
 
+.company-badge {
+  margin-top: 15px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 6px 16px;
+  border-radius: 100px;
+  display: inline-block;
+  border: 1px solid #E2E8F0;
+}
+
 .role-selection-area { display: flex; flex-direction: column; gap: 15px; margin-top: 40px; }
 .role-btn {
   height: 68px; border: none; border-radius: 24px; font-weight: 900; font-size: 1.25rem; color: white; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -115,7 +127,49 @@ html, body, #root {
   to { opacity: 1; transform: translateY(0) scale(1); } 
 }
 
+.app-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-footer {
+  background: white;
+  padding: 5px 20px 15px;
+  text-align: center;
+  border-top: 1px solid rgba(0,0,0,0.03);
+}
+
+.app-footer small {
+  color: #94A3B8;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+}
+
 .tracker-header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.info-icon-btn { border: none; background: #F1F5F9; width: 36px; height: 36px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.info-icon-btn:hover { background: #E2E8F0; transform: scale(1.05); }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-card { background: white; border-radius: 32px; width: 100%; max-width: 360px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+.modal-header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F1F5F9; }
+.modal-header h3 { font-size: 1.1rem; font-weight: 800; color: #4338CA; }
+.close-modal { border: none; background: none; font-size: 1.2rem; color: #94A3B8; cursor: pointer; }
+
+.modal-body { padding: 30px 25px; text-align: center; }
+.company-logo-small { width: 60px; height: 60px; background: #6366F1; color: white; font-size: 2rem; font-weight: 900; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+.modal-body h4 { font-size: 1.4rem; font-weight: 900; color: #1E293B; margin-bottom: 4px; }
+.company-desc { color: #64748B; font-weight: 600; font-size: 0.9rem; margin-bottom: 20px; }
+.modal-body hr { border: none; border-top: 1px solid #F1F5F9; margin-bottom: 20px; }
+
+.info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
+.info-row .label { color: #94A3B8; font-weight: 600; }
+.info-row .value { color: #1E293B; font-weight: 700; }
+.info-row .value.verified { color: #10B981; }
+
 .header-title { font-size: 1.3rem; font-weight: 950; color: #4338CA; }
 
 .map-container { flex: 1; position: relative; background: #f0f0f0; }

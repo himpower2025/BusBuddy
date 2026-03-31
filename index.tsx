@@ -220,6 +220,7 @@ function App() {
   const [isLive, setIsLive] = useState(false);
   const [sosActive, setSosActive] = useState(false);
   const [studentStatus, setStudentStatus] = useState('Wait');
+  const [showCompanyInfo, setShowCompanyInfo] = useState(false);
   
   const simId = useRef<any>(null);
 
@@ -279,6 +280,7 @@ function App() {
             </div>
             <h1 class="brand-title">BusBuddy <span class="brand-pro">PRO</span></h1>
             <p class="brand-subtitle">Smart School Transportation</p>
+            <div class="company-badge">Developed by Himpower Pvt. Ltd.</div>
           </div>
           <div class="role-selection-area">
             <button class="role-btn driver" onClick=${() => setRole('driver')}>🧢 Teacher / Driver</button>
@@ -291,17 +293,20 @@ function App() {
   }
 
   if (!selectedSchool) {
+    const roleIcon = role === 'driver' ? '🧢' : (role === 'parent' ? '🏠' : '🏢');
+    const roleName = role === 'driver' ? 'Driver' : (role === 'parent' ? 'Parent' : 'Admin');
+
     return html`
       <div class="app-viewport splash-bg anim-fade-in">
         <div class="auth-box">
-          <button class="back-btn" onClick=${() => setRole(null)}>←</button>
-          <div class="auth-icon">🏫</div>
-          <h2 class="auth-title">School Login</h2>
+          <button class="back-btn" onClick=${() => { setRole(null); setSchoolCode(''); setCodeError(''); }}>←</button>
+          <div class="auth-icon">${roleIcon}</div>
+          <h2 class="auth-title">${roleName} Login</h2>
           <p class="auth-desc">Enter your school access code.</p>
           <input 
             class="code-input"
-            type="text" placeholder="SEL999" maxlength="6"
-            value=${schoolCode} onInput=${(e: any) => setSchoolCode(e.target.value)}
+            type="text" placeholder="------" maxlength="6"
+            value=${schoolCode} onInput=${(e: any) => setSchoolCode(e.target.value.toUpperCase())}
           />
           <button class="action-btn" onClick=${handleVerifyCode}>Connect School</button>
           ${codeError && html`<p class="error-text">⚠️ ${codeError}</p>`}
@@ -320,10 +325,13 @@ function App() {
              <small class="header-school">${selectedSchool.name}</small>
            </div>
         </div>
-        ${role === 'driver' 
-          ? html`<button class="sos-btn" onClick=${triggerSOS}>SOS</button>`
-          : html`<div class="eta-badge">ETA: <span>${isLive ? '12 min' : '--'}</span></div>`
-        }
+        <div class="header-right">
+          <button class="info-icon-btn" onClick=${() => setShowCompanyInfo(true)}>ℹ️</button>
+          ${role === 'driver' 
+            ? html`<button class="sos-btn" onClick=${triggerSOS}>SOS</button>`
+            : html`<div class="eta-badge">ETA: <span>${isLive ? '12 min' : '--'}</span></div>`
+          }
+        </div>
       </header>
 
       <main class="map-container">
@@ -361,7 +369,44 @@ function App() {
          <button onClick=${() => setRoute(null)}><i>🔄</i>Switch</button>
       </nav>
       
+      <footer class="app-footer">
+        <small>© 2026 Himpower Pvt. Ltd. All Rights Reserved.</small>
+      </footer>
+      
       ${sosActive && html`<div class="sos-fullscreen">⚠️ EMERGENCY SIGNAL SENT</div>`}
+      
+      ${showCompanyInfo && html`
+        <div class="modal-overlay" onClick=${() => setShowCompanyInfo(false)}>
+          <div class="modal-card anim-fade-in" onClick=${(e: any) => e.stopPropagation()}>
+            <div class="modal-header">
+              <h3>Company Information</h3>
+              <button class="close-modal" onClick=${() => setShowCompanyInfo(false)}>✕</button>
+            </div>
+            <div class="modal-body">
+              <div class="company-logo-small">H</div>
+              <h4>Himpower Pvt. Ltd.</h4>
+              <p class="company-desc">Official Developer of BusBuddy PRO</p>
+              <hr />
+              <div class="info-row">
+                <span class="label">Registration</span>
+                <span class="value">HPL-2026-0331</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Contact</span>
+                <span class="value">contact@himpower.com</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Website</span>
+                <span class="value">www.himpower.com</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Status</span>
+                <span class="value verified">Verified Partner</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `}
     </div>
   `;
 }
