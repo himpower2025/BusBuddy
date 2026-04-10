@@ -196,7 +196,7 @@ function ChatView({ role, messages, onSendMessage }: { role: string, messages: M
           `)}
         </div>
         <div class="chat-input-area">
-          <input type="text" placeholder="Type a message..." value=${input} onInput=${(e: any) => setInput(e.target.value)} />
+          <input type="text" placeholder="Type a message..." value=${input} onInput=${(e: any) => setInput(e.target.value)} onKeyPress=${(e: any) => { if(e.key === 'Enter' && input) { onSendMessage(input, false); setInput(''); } }} />
           <button class="send-btn" onClick=${() => { if(input) { onSendMessage(input, false); setInput(''); } }}>🚀</button>
         </div>
       </div>
@@ -316,7 +316,7 @@ function App() {
   }
 
   return html`
-    <div class="app-container splash-bg anim-fade-in">
+    <div class="app-container main-app-bg anim-fade-in">
       <header class="tracker-header">
         <div class="header-left">
            <div class="status-dot ${isLive ? 'online' : ''}"></div>
@@ -338,7 +338,7 @@ function App() {
         ${activeTab === 'map' ? html`
           <${GoogleMap} location=${location} isLive=${isLive} />
           <div class="control-overlay">
-            <div class="panel-card">
+            <div class="panel-card anim-fade-in">
               ${role === 'driver' ? html`
                 <button class="main-cta ${isLive ? 'stop' : 'start'}" onClick=${isLive ? stopTracking : startTracking}>
                   ${isLive ? html`🛑 Stop Shift` : html`🚀 Start Shift`}
@@ -353,7 +353,7 @@ function App() {
                    <button class="update-btn" onClick=${() => {
                       const next = studentStatus === 'Wait' ? 'Boarded' : (studentStatus === 'Boarded' ? 'Arrived' : 'Wait');
                       setStudentStatus(next);
-                   }}>Status Update</button>
+                   }}>Update Status</button>
                 </div>
               `}
             </div>
@@ -366,7 +366,7 @@ function App() {
       <nav class="main-tabs">
          <button class=${activeTab === 'map' ? 'active' : ''} onClick=${() => setActiveTab('map')}><i>📍</i>Map</button>
          <button class=${activeTab === 'chat' ? 'active' : ''} onClick=${() => setActiveTab('chat')}><i>💬</i>Chat</button>
-         <button onClick=${() => setRoute(null)}><i>🔄</i>Switch</button>
+         <button onClick=${() => { setSelectedSchool(null); setRoute(null); setRole(null); }}><i>🔄</i>Switch</button>
       </nav>
       
       <footer class="app-footer">
