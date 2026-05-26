@@ -495,11 +495,16 @@ function App() {
   const handleVerifyCode = async () => {
     const formattedCode = schoolCode.trim().toUpperCase();
     const ref = doc(db, 'schools', formattedCode);
+    setCodeError(''); // Clear error
     try {
       const snap = await getDoc(ref);
       if (snap.exists()) {
         const dbSchool = snap.data();
-        await seedDefaultBuses(formattedCode); // Ensure default fleet loaded
+        try {
+          await seedDefaultBuses(formattedCode); // Ensure default fleet loaded
+        } catch (seedErr) {
+          console.warn("Seeding default buses failed, proceeding:", seedErr);
+        }
         setSelectedSchool({
           id: formattedCode,
           name: dbSchool.name,
@@ -512,24 +517,51 @@ function App() {
       } else {
         const mockSchool = INITIAL_SCHOOLS[formattedCode];
         if (mockSchool) {
-          await setDoc(ref, {
-            name: mockSchool.name,
-            logo: mockSchool.logo,
-            routes: mockSchool.routes,
-            driverName: mockSchool.driverName,
-            isLive: false,
-            latitude: 37.5665,
-            longitude: 126.9780
-          });
-          await seedDefaultBuses(formattedCode); // Ensure default fleet loaded
+          try {
+            await setDoc(ref, {
+              name: mockSchool.name,
+              logo: mockSchool.logo,
+              routes: mockSchool.routes,
+              driverName: mockSchool.driverName,
+              isLive: false,
+              latitude: 37.5665,
+              longitude: 126.9780
+            });
+            await seedDefaultBuses(formattedCode); // Ensure default fleet loaded
+          } catch (writeErr) {
+            console.warn("Writing default school seed failed, running in sandbox mode:", writeErr);
+            setCodeError("⚠️ Database write blocked. Running in offline sandbox mode!");
+            setTimeout(() => {
+              setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
+              setCodeError('');
+            }, 1500);
+            return;
+          }
           setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
           setCodeError('');
         } else {
           setCodeError('Invalid code. Try "SEL999" or "PAE101"');
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       handleFirestoreError(err, OperationType.GET, `schools/${formattedCode}`);
+      const errMsg = err?.message || String(err);
+      console.error("Connection Failed:", errMsg);
+      
+      const mockSchool = INITIAL_SCHOOLS[formattedCode];
+      if (mockSchool) {
+        setCodeError("⚠️ Firebase connection denied. Entering Sandbox Mode...");
+        setTimeout(() => {
+          setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
+          setCodeError('');
+        }, 1500);
+      } else {
+        if (errMsg.includes("permission") || errMsg.includes("Permission")) {
+          setCodeError("⚠️ Firebase Permission Denied. Check your security rules!");
+        } else {
+          setCodeError(`⚠️ Connection error: ${errMsg.substring(0, 60)}`);
+        }
+      }
     }
   };
 
