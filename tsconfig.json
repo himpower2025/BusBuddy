@@ -18,5 +18,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "include": ["index.tsx"]
+  "include": ["index.tsx", "firebase.ts"]
 }

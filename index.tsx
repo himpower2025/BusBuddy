@@ -267,7 +267,7 @@ function App() {
     if (!selectedSchool) return;
 
     const ref = doc(db, 'schools', selectedSchool.code!);
-    const unsub = onSnapshot(ref, (snap) => {
+    const unsub = onSnapshot(ref, (snap: any) => {
       if (snap.exists()) {
         const data = snap.data();
         setIsLive(data.isLive || false);
@@ -277,7 +277,7 @@ function App() {
           setLocation(null);
         }
       }
-    }, (err) => {
+    }, (err: any) => {
       handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}`);
     });
 
@@ -289,9 +289,9 @@ function App() {
     if (!selectedSchool) return;
 
     const msgsRef = collection(db, 'schools', selectedSchool.code!, 'messages');
-    const unsub = onSnapshot(msgsRef, (snap) => {
+    const unsub = onSnapshot(msgsRef, (snap: any) => {
       const list: Message[] = [];
-      snap.forEach((docSnap) => {
+      snap.forEach((docSnap: any) => {
         const data = docSnap.data();
         list.push({
           id: docSnap.id,
@@ -309,7 +309,7 @@ function App() {
         return t1 - t2;
       });
       setMessages(list.length > 0 ? list : INITIAL_MESSAGES);
-    }, (err) => {
+    }, (err: any) => {
       handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}/messages`);
     });
 
@@ -321,13 +321,13 @@ function App() {
     if (!selectedSchool) return;
 
     const studentRef = doc(db, 'schools', selectedSchool.code!, 'students', 'emily');
-    const unsub = onSnapshot(studentRef, (snap) => {
+    const unsub = onSnapshot(studentRef, (snap: any) => {
       if (snap.exists()) {
         setStudentStatus(snap.data().status);
       } else {
         setStudentStatus('Wait');
       }
-    }, (err) => {
+    }, (err: any) => {
       handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}/students/emily`);
     });
 

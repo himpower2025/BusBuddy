@@ -8,7 +8,7 @@ export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth();
 
 // Sign in anonymously on import to handle basic Firestore authentication queries safely
-signInAnonymously(auth).catch((error) => {
+signInAnonymously(auth).catch((error: any) => {
   console.warn("Anonymous auth skipped or failed:", error);
 });
 
