@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "School": {
+      "title": "School Info and Live Status",
+      "description": "Defines active tracking and meta data for each school code",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "logo": { "type": "string" },
+        "routes": { "type": "array" },
+        "driverName": { "type": "string" },
+        "isLive": { "type": "boolean" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "logo", "routes", "driverName"]
+    },
+    "Message": {
+      "title": "Chat Message",
+      "description": "Real-time communication message between driver/teacher and parents",
+      "type": "object",
+      "properties": {
+        "sender": { "type": "string" },
+        "text": { "type": "string" },
+        "time": { "type": "string" },
+        "isBroadcast": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sender", "text", "time", "isBroadcast", "createdAt"]
+    },
+    "Student": {
+      "title": "Student Boarding Status",
+      "description": "Real-time boarding and arrival phase for a child",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["Wait", "Boarded", "Arrived"] },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "status"]
+    }
+  },
+  "firestore": {
+    "/schools/{schoolId}": {
+      "schema": "School",
+      "description": "School level telemetry status and metadata"
+    },
+    "/schools/{schoolId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Real-time active tracking chat room"
+    },
+    "/schools/{schoolId}/students/{studentId}": {
+      "schema": "Student",
+      "description": "Assigned children status under a school"
+    }
+  }
+}

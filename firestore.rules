@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidSchool(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200
+         && data.logo is string && data.logo.size() > 0 && data.logo.size() <= 10
+         && data.routes is list && data.routes.size() <= 20
+         && data.driverName is string && data.driverName.size() > 0;
+    }
+
+    function isValidMessage(data) {
+      return data.sender is string && data.sender.size() > 0 && data.sender.size() <= 100
+         && data.text is string && data.text.size() > 0 && data.text.size() <= 500
+         && data.time is string && data.time.size() > 0
+         && data.isBroadcast is bool
+         && data.createdAt == request.time;
+    }
+
+    function isValidStudent(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+         && data.status is string && (data.status == 'Wait' || data.status == 'Boarded' || data.status == 'Arrived');
+    }
+
+    // Match blocks
+    match /schools/{schoolId} {
+      allow read: if true; // Public check for school code validation
+      allow create, update: if isValidId(schoolId) && isValidSchool(request.resource.data);
+      
+      match /messages/{messageId} {
+        allow read, list: if true;
+        allow create: if isValidId(messageId) && isValidMessage(request.resource.data);
+      }
+
+      match /students/{studentId} {
+        allow read, list: if true;
+        allow create, update: if isValidId(studentId) && isValidStudent(request.resource.data);
+      }
+    }
+  }
+}

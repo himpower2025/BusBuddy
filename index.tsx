@@ -3,6 +3,47 @@ import { render } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { html } from 'htm/preact';
 
+// --- Firebase Imports ---
+import { db, auth } from './firebase';
+import { collection, doc, setDoc, getDoc, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
 // --- Types ---
 interface School {
   id: string;
@@ -206,10 +247,7 @@ function ChatView({ role, messages, onSendMessage }: { role: string, messages: M
 
 function App() {
   const [role, setRole] = useState<string | null>(null);
-  const [schools, setSchools] = useState<Schools>(() => {
-    const saved = localStorage.getItem('busbuddy_v4_schools');
-    return saved ? JSON.parse(saved) : INITIAL_SCHOOLS;
-  });
+  const [schools, setSchools] = useState<Schools>(INITIAL_SCHOOLS);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [schoolCode, setSchoolCode] = useState('');
@@ -224,45 +262,200 @@ function App() {
   
   const simId = useRef<any>(null);
 
+  // 1. Subscribe to Live Location / School status
   useEffect(() => {
-    localStorage.setItem('busbuddy_v4_schools', JSON.stringify(schools));
-  }, [schools]);
+    if (!selectedSchool) return;
 
-  const handleVerifyCode = () => {
+    const ref = doc(db, 'schools', selectedSchool.code!);
+    const unsub = onSnapshot(ref, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setIsLive(data.isLive || false);
+        if (data.isLive && data.latitude && data.longitude) {
+          setLocation({ latitude: data.latitude, longitude: data.longitude });
+        } else {
+          setLocation(null);
+        }
+      }
+    }, (err) => {
+      handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}`);
+    });
+
+    return () => unsub();
+  }, [selectedSchool]);
+
+  // 2. Subscribe to Real-time Chat Messages
+  useEffect(() => {
+    if (!selectedSchool) return;
+
+    const msgsRef = collection(db, 'schools', selectedSchool.code!, 'messages');
+    const unsub = onSnapshot(msgsRef, (snap) => {
+      const list: Message[] = [];
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          sender: data.sender,
+          text: data.text,
+          time: data.time,
+          isBroadcast: data.isBroadcast || false,
+          createdAt: data.createdAt
+        } as any);
+      });
+      // Safely sort client-side by createdAt timestamp
+      list.sort((a: any, b: any) => {
+        const t1 = a.createdAt?.seconds || 0;
+        const t2 = b.createdAt?.seconds || 0;
+        return t1 - t2;
+      });
+      setMessages(list.length > 0 ? list : INITIAL_MESSAGES);
+    }, (err) => {
+      handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}/messages`);
+    });
+
+    return () => unsub();
+  }, [selectedSchool]);
+
+  // 3. Subscribe to Student Boarding Status
+  useEffect(() => {
+    if (!selectedSchool) return;
+
+    const studentRef = doc(db, 'schools', selectedSchool.code!, 'students', 'emily');
+    const unsub = onSnapshot(studentRef, (snap) => {
+      if (snap.exists()) {
+        setStudentStatus(snap.data().status);
+      } else {
+        setStudentStatus('Wait');
+      }
+    }, (err) => {
+      handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}/students/emily`);
+    });
+
+    return () => unsub();
+  }, [selectedSchool]);
+
+  const handleVerifyCode = async () => {
     const formattedCode = schoolCode.trim().toUpperCase();
-    const school = schools[formattedCode];
-    if (school) {
-      setSelectedSchool({ ...school, code: formattedCode });
-      setCodeError('');
-    } else {
-      setCodeError('Invalid code. Try "SEL999"');
+    const ref = doc(db, 'schools', formattedCode);
+    try {
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const dbSchool = snap.data();
+        setSelectedSchool({
+          id: formattedCode,
+          name: dbSchool.name,
+          logo: dbSchool.logo,
+          routes: dbSchool.routes,
+          driverName: dbSchool.driverName,
+          code: formattedCode
+        });
+        setCodeError('');
+      } else {
+        // Automatically seed the database project if the sample code matches standard mock sets
+        const mockSchool = INITIAL_SCHOOLS[formattedCode];
+        if (mockSchool) {
+          await setDoc(ref, {
+            name: mockSchool.name,
+            logo: mockSchool.logo,
+            routes: mockSchool.routes,
+            driverName: mockSchool.driverName,
+            isLive: false,
+            latitude: 37.5665,
+            longitude: 126.9780
+          });
+          setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
+          setCodeError('');
+        } else {
+          setCodeError('Invalid code. Try "SEL999" or "PAE101"');
+        }
+      }
+    } catch (err) {
+      handleFirestoreError(err, OperationType.GET, `schools/${formattedCode}`);
     }
   };
 
-  const handleSendMessage = (text: string, _isQuick: boolean) => {
-    const newMsg: Message = {
-      id: Date.now(),
+  const handleSendMessage = async (text: string) => {
+    if (!selectedSchool) return;
+    const msgsRef = collection(db, 'schools', selectedSchool.code!, 'messages');
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const payload = {
       sender: role === 'driver' ? 'Teacher' : 'Parent (Emily)',
       text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isBroadcast: role === 'driver'
+      time: timeStr,
+      isBroadcast: role === 'driver',
+      createdAt: serverTimestamp()
     };
-    setMessages([...messages, newMsg]);
+    try {
+      await addDoc(msgsRef, payload);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, `schools/${selectedSchool.code!}/messages`);
+    }
   };
 
-  const startTracking = () => {
+  const startTracking = async () => {
     setIsLive(true);
-    let lat = 37.5665; let lng = 126.9780;
-    simId.current = setInterval(() => {
-      lat += 0.0001; lng += 0.0001;
+    let lat = 37.5665;
+    let lng = 126.9780;
+
+    const updateDB = async (lt: number, lg: number) => {
+      if (!selectedSchool) return;
+      try {
+        await setDoc(doc(db, 'schools', selectedSchool.code!), {
+          name: selectedSchool.name,
+          logo: selectedSchool.logo,
+          routes: selectedSchool.routes,
+          driverName: selectedSchool.driverName,
+          isLive: true,
+          latitude: lt,
+          longitude: lg
+        });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, `schools/${selectedSchool.code!}`);
+      }
+    };
+
+    await updateDB(lat, lng);
+
+    simId.current = setInterval(async () => {
+      lat += 0.0001;
+      lng += 0.0001;
       setLocation({ latitude: lat, longitude: lng });
+      await updateDB(lat, lng);
     }, 2000);
   };
 
-  const stopTracking = () => {
+  const stopTracking = async () => {
     clearInterval(simId.current);
     setIsLive(false);
     setLocation(null);
+    if (!selectedSchool) return;
+    try {
+      await setDoc(doc(db, 'schools', selectedSchool.code!), {
+        name: selectedSchool.name,
+        logo: selectedSchool.logo,
+        routes: selectedSchool.routes,
+        driverName: selectedSchool.driverName,
+        isLive: false,
+        latitude: 37.5665,
+        longitude: 126.9780
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, `schools/${selectedSchool.code!}`);
+    }
+  };
+
+  const updateStudentStatusInDB = async (status: string) => {
+    if (!selectedSchool) return;
+    const studentRef = doc(db, 'schools', selectedSchool.code!, 'students', 'emily');
+    try {
+      await setDoc(studentRef, {
+        name: 'Emily Boarding',
+        status: status,
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, `schools/${selectedSchool.code!}/students/emily`);
+    }
   };
 
   const triggerSOS = () => {
@@ -352,7 +545,7 @@ function App() {
                    </div>
                    <button class="update-btn" onClick=${() => {
                       const next = studentStatus === 'Wait' ? 'Boarded' : (studentStatus === 'Boarded' ? 'Arrived' : 'Wait');
-                      setStudentStatus(next);
+                      updateStudentStatusInDB(next);
                    }}>Update Status</button>
                 </div>
               `}
