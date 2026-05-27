@@ -13,26 +13,52 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+let db: any = null;
+let auth: any = null;
+let isFirebaseFallback = false;
+let fallbackReason = "";
 
-// Sign in anonymously on import to handle basic Firestore authentication queries safely
-signInAnonymously(auth).catch((error: any) => {
-  console.warn("Anonymous auth skipped or failed:", error);
-});
+// Check if config has minimum required fields to initialize securely
+const hasValidConfig = !!(firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIzaSy'));
 
-async function testConnection() {
+if (hasValidConfig) {
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-    console.log("Firebase connection established successfully!");
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration or networks.");
-    } else {
-      console.log("Firebase initialized and verified:", error);
-    }
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    
+    // Sign in anonymously on import to handle basic Firestore authentication queries safely
+    signInAnonymously(auth).catch((error: any) => {
+      console.warn("Anonymous auth skipped or failed:", error);
+    });
+  } catch (error: any) {
+    console.error("Firebase initialization failed:", error);
+    isFirebaseFallback = true;
+    fallbackReason = error?.message || String(error);
   }
+} else {
+  console.warn("VITE_FIREBASE_API_KEY is missing or invalid. Initializing in offline sandbox mode.");
+  isFirebaseFallback = true;
+  fallbackReason = "Missing or malformed VITE_FIREBASE_API_KEY environment variable. Check Vercel settings.";
 }
 
-testConnection();
+// Provide defensive mock objects if initialization failed or config was invalid
+if (isFirebaseFallback) {
+  db = new Proxy({}, {
+    get(target, prop) {
+      return () => {
+        throw new Error(`Firebase not initialized: ${fallbackReason}`);
+      };
+    }
+  });
+  
+  auth = {
+    currentUser: null,
+    onAuthStateChanged: (cb: any) => {
+      if (typeof cb === 'function') cb(null);
+      return () => {};
+    }
+  };
+}
+
+export { db, auth, isFirebaseFallback, fallbackReason, firebaseConfig };

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'preact/hooks';
 import { html } from 'htm/preact';
 
 // --- Firebase Imports ---
-import { db, auth } from './firebase';
+import { db, auth, isFirebaseFallback, fallbackReason, firebaseConfig } from './firebase';
 import { collection, doc, setDoc, getDoc, onSnapshot, addDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
 enum OperationType {
@@ -32,10 +32,10 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
+      userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
+      isAnonymous: auth?.currentUser?.isAnonymous,
     },
     operationType,
     path
@@ -354,7 +354,45 @@ function App() {
   const [newBusRoute, setNewBusRoute] = useState('');
   const [adminActiveBusId, setAdminActiveBusId] = useState<string>('');
 
+  // Diagnostic panel states
+  const [diagnosticLogs, setDiagnosticLogs] = useState<string[]>([]);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+
   const simId = useRef<any>(null);
+
+  // Diagnostic startup logger
+  useEffect(() => {
+    const logs: string[] = [];
+    logs.push(`[System] Init Time: ${new Date().toLocaleTimeString()}`);
+    logs.push(`[System] Firebase Fallback Mode: ${isFirebaseFallback ? "ON (Sandbox Active)" : "OFF (Live Mode)"}`);
+    if (isFirebaseFallback) {
+      logs.push(`[System Warning] Fallback Reason: ${fallbackReason}`);
+    }
+    const apiPresent = !!firebaseConfig?.apiKey;
+    const apiValid = firebaseConfig?.apiKey?.startsWith("AIzaSy");
+    logs.push(`[Config Check] API Key Present: ${apiPresent}`);
+    if (apiPresent) {
+      logs.push(`[Config Check] API Key Signature: ${firebaseConfig.apiKey.substring(0, 10)}... (Valid structure: ${apiValid})`);
+    } else {
+      logs.push(`[Config Check] API Key Signature: MISSING`);
+    }
+    logs.push(`[Config Check] Project ID: ${firebaseConfig?.projectId || "none"}`);
+    
+    if (auth) {
+      logs.push(`[Auth Check] Auth Module: Loaded successfully`);
+      try {
+        const userState = auth.currentUser
+          ? 'Signed in (' + auth.currentUser.uid + ')'
+          : 'Anonymous queue active';
+        logs.push('[Auth Check] User State: ' + userState);
+      } catch (e: any) {
+        logs.push('[Auth Error] Failed to read user: ' + (e.message || String(e)));
+      }
+    } else {
+      logs.push(`[Auth Check] Auth Module: Mock placeholder (Offline fallback)`);
+    }
+    setDiagnosticLogs(logs);
+  }, []);
 
   // 1. Seed default buses if they don't exist
   const seedDefaultBuses = async (schoolCode: string) => {
@@ -492,78 +530,86 @@ function App() {
   }, [selectedSchool, selectedBus]);
 
   // Authentication/Connect verification
-  const handleVerifyCode = async () => {
-    const formattedCode = schoolCode.trim().toUpperCase();
+const handleVerifyCode = async () => {
+  const formattedCode = schoolCode.trim().toUpperCase();
+  setCodeError('');
+
+  const addLog = (msg: string) => {
+    setDiagnosticLogs(prev => [...prev, `[Action ${new Date().toLocaleTimeString()}] ${msg}`]);
+  };
+
+  addLog(`Connect School requested for code: "${formattedCode}"`);
+
+  // ✅ 1순위: Firebase 없어도 INITIAL_SCHOOLS에 있으면 바로 Sandbox 진입
+  if (isFirebaseFallback) {
+    const mockSchool = INITIAL_SCHOOLS[formattedCode];
+    if (mockSchool) {
+      addLog(`Sandbox Mode: Loading local school data for "${formattedCode}"`);
+      setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
+      setCodeError('');
+    } else {
+      addLog(`Invalid code in Sandbox Mode.`);
+      setCodeError('Invalid code. Try "SEL999" or "PAE101"');
+    }
+    return; // Firebase 시도 없이 여기서 종료
+  }
+
+  // ✅ 2순위: Firebase가 있을 때만 DB 조회
+  try {
     const ref = doc(db, 'schools', formattedCode);
-    setCodeError(''); // Clear error
-    try {
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const dbSchool = snap.data();
-        try {
-          await seedDefaultBuses(formattedCode); // Ensure default fleet loaded
-        } catch (seedErr) {
-          console.warn("Seeding default buses failed, proceeding:", seedErr);
-        }
-        setSelectedSchool({
-          id: formattedCode,
-          name: dbSchool.name,
-          logo: dbSchool.logo,
-          routes: dbSchool.routes || [],
-          driverName: dbSchool.driverName,
-          code: formattedCode
-        });
-        setCodeError('');
-      } else {
-        const mockSchool = INITIAL_SCHOOLS[formattedCode];
-        if (mockSchool) {
-          try {
-            await setDoc(ref, {
-              name: mockSchool.name,
-              logo: mockSchool.logo,
-              routes: mockSchool.routes,
-              driverName: mockSchool.driverName,
-              isLive: false,
-              latitude: 37.5665,
-              longitude: 126.9780
-            });
-            await seedDefaultBuses(formattedCode); // Ensure default fleet loaded
-          } catch (writeErr) {
-            console.warn("Writing default school seed failed, running in sandbox mode:", writeErr);
-            setCodeError("⚠️ Database write blocked. Running in offline sandbox mode!");
-            setTimeout(() => {
-              setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
-              setCodeError('');
-            }, 1500);
-            return;
-          }
-          setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
-          setCodeError('');
-        } else {
-          setCodeError('Invalid code. Try "SEL999" or "PAE101"');
-        }
+    addLog(`Calling getDoc(schools/${formattedCode})...`);
+    const snap = await getDoc(ref);
+    addLog(`Doc get completed. Exists: ${snap.exists()}`);
+
+    if (snap.exists()) {
+      const dbSchool = snap.data();
+      try {
+        await seedDefaultBuses(formattedCode);
+        addLog(`Fleet seeded successfully`);
+      } catch (seedErr: any) {
+        addLog(`Fleet seeding warning: ${seedErr.message || seedErr}`);
       }
-    } catch (err: any) {
-      handleFirestoreError(err, OperationType.GET, `schools/${formattedCode}`);
-      const errMsg = err?.message || String(err);
-      console.error("Connection Failed:", errMsg);
-      
+      setSelectedSchool({
+        id: formattedCode,
+        name: dbSchool.name,
+        logo: dbSchool.logo,
+        routes: dbSchool.routes || [],
+        driverName: dbSchool.driverName,
+        code: formattedCode
+      });
+    } else {
       const mockSchool = INITIAL_SCHOOLS[formattedCode];
       if (mockSchool) {
-        setCodeError("⚠️ Firebase connection denied. Entering Sandbox Mode...");
-        setTimeout(() => {
-          setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
-          setCodeError('');
-        }, 1500);
-      } else {
-        if (errMsg.includes("permission") || errMsg.includes("Permission")) {
-          setCodeError("⚠️ Firebase Permission Denied. Check your security rules!");
-        } else {
-          setCodeError(`⚠️ Connection error: ${errMsg.substring(0, 60)}`);
+        addLog(`Registering new school in DB...`);
+        try {
+          await setDoc(ref, {
+            name: mockSchool.name,
+            logo: mockSchool.logo,
+            routes: mockSchool.routes,
+            driverName: mockSchool.driverName,
+            isLive: false,
+            latitude: 37.5665,
+            longitude: 126.9780
+          });
+          await seedDefaultBuses(formattedCode);
+        } catch (writeErr: any) {
+          addLog(`DB write blocked, using sandbox: ${writeErr.message}`);
         }
+        setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
+      } else {
+        setCodeError('Invalid code. Try "SEL999" or "PAE101"');
       }
     }
-  };
+  } catch (err: any) {
+    addLog(`Firebase error, falling back to sandbox: ${err.message}`);
+    const mockSchool = INITIAL_SCHOOLS[formattedCode];
+    if (mockSchool) {
+      setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
+    } else {
+      setCodeError(`Invalid code. Try "SEL999" or "PAE101"`);
+    }
+  }
+};
 
   // Sending a chat message
   const handleSendMessage = async (text: string) => {
@@ -749,7 +795,7 @@ function App() {
 
     return html`
       <div class="app-viewport splash-bg anim-fade-in">
-        <div class="auth-box">
+        <div class="auth-box" style="position: relative;">
           <button class="back-btn" onClick=${() => { setRole(null); setSchoolCode(''); setCodeError(''); }}>←</button>
           <div class="auth-icon">${roleIcon}</div>
           <h2 class="auth-title">${roleName} Login</h2>
@@ -760,7 +806,30 @@ function App() {
             value=${schoolCode} onInput=${(e: any) => setSchoolCode(e.target.value.toUpperCase())}
           />
           <button class="action-btn" onClick=${handleVerifyCode}>Connect School</button>
-          ${codeError && html`<p class="error-text">⚠️ ${codeError}</p>`}
+          ${codeError && html`<p class="error-text" style="margin-bottom: 15px;">⚠️ ${codeError}</p>`}
+
+          <!-- Live Self-Diagnostic Drawer -->
+          <div style="margin-top: 25px; border-top: 1px dashed #E2E8F0; padding-top: 15px;">
+            <button 
+              onClick=${() => setShowDiagnostics(!showDiagnostics)} 
+              style="background: none; border: none; color: #6366F1; font-weight: 800; font-size: 0.8rem; cursor: pointer; text-decoration: underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 6px;"
+            >
+              ${showDiagnostics ? '▲ Hide Diagnostics Console' : '🛠️ Show Diagnostics Console'}
+            </button>
+            
+            ${showDiagnostics && html`
+              <div class="diagnostic-panel" style="text-align: left; background: #0F172A; color: #38BDF8; font-family: monospace; font-size: 0.72rem; padding: 12px; border-radius: 12px; margin-top: 10px; max-height: 180px; overflow-y: auto; border: 1px solid #334155; line-height: 1.4;">
+                <div style="color: #F8FAFC; font-weight: bold; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 6px; display: flex; justify-content: space-between;">
+                  <span>SYSTEM DIAGNOSTICS</span>
+                  <span style="color: ${isFirebaseFallback ? '#F43F5E' : '#10B981'}">${isFirebaseFallback ? 'SANDBOX' : 'LIVE'}</span>
+                </div>
+                ${diagnosticLogs.map(log => html`<div style="margin-bottom: 4px; word-break: break-all;">${log}</div>`)}
+                <div style="margin-top: 10px; border-top: 1px solid #334155; padding-top: 6px; color: #94A3B8; font-style: italic;">
+                  💡 Environment variables require a **Re-deploy (Build)** on Vercel to take effect.
+                </div>
+              </div>
+            `}
+          </div>
         </div>
       </div>
     `;
