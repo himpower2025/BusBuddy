@@ -514,3 +514,108 @@ html, body, #root {
   font-weight: 700;
   font-size: 0.9rem;
 }
+
+/* Policy & Terms Modal Enhancements */
+.policy-modal-card {
+  background: white;
+  border-radius: 32px;
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+}
+
+.policy-body {
+  padding: 25px;
+  text-align: left;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.policy-text-container {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #475569;
+  background: #F8FAFC;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid #E2E8F0;
+  max-height: 40vh;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.policy-text-container h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1E293B;
+  margin-top: 15px;
+  margin-bottom: 6px;
+}
+
+.policy-text-container h4:first-child {
+  margin-top: 0;
+}
+
+.policy-text-container p {
+  margin-bottom: 12px;
+}
+
+.policy-text-container ul {
+  margin-bottom: 12px;
+  padding-left: 18px;
+}
+
+.policy-text-container li {
+  margin-bottom: 6px;
+}
+
+.policy-footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policy-link-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 16px;
+  background: #E0E7FF;
+  color: #4338CA;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.policy-link-btn:hover {
+  background: #C7D2FE;
+  transform: translateY(-1px);
+}
+
+.policy-close-btn {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 16px;
+  background: #F1F5F9;
+  color: #64748B;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.policy-close-btn:hover {
+  background: #E2E8F0;
+  color: #1E293B;
+}
