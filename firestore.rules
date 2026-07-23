@@ -39,20 +39,16 @@ service cloud.firestore {
     match /schools/{schoolId} {
       allow read: if true; // Public check for school code validation
       allow create, update: if isValidId(schoolId) && isValidSchool(request.resource.data);
-      
-      match /buses/{busId} {
+
+      match /messages/{messageId} {
         allow read, list: if true;
-        allow write, create, update, delete: if true;
-        
-        match /messages/{messageId} {
-          allow read, list: if true;
-          allow create, write: if true;
-        }
+        allow create, write: if isSignedIn() && isValidMessage(request.resource.data);
       }
 
       match /students/{studentId} {
         allow read, list: if true;
         allow create, update: if isValidId(studentId) && isValidStudent(request.resource.data);
+        allow delete: if isSignedIn();
       }
     }
   }

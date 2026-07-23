@@ -1,4 +1,3 @@
-
 import { render } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { html } from 'htm/preact';
@@ -44,6 +43,111 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   throw new Error(JSON.stringify(errInfo));
 }
 
+// --- SoundFX Engine (Web Audio API) ---
+class SoundFX {
+  private static ctx: AudioContext | null = null;
+  private static isMuted = false;
+
+  public static setMuted(muted: boolean) {
+    this.isMuted = muted;
+  }
+
+  public static getMuted() {
+    return this.isMuted;
+  }
+
+  private static initCtx() {
+    if (this.isMuted) return;
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  public static playChime() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } catch(e) {}
+  }
+
+  public static playSOS() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.linearRampToValueAtTime(400, now + 0.3);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.6);
+      osc.frequency.linearRampToValueAtTime(400, now + 0.9);
+      gain.gain.setValueAtTime(0.5, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 1.2);
+    } catch(e) {}
+  }
+
+  public static playBoardingPing() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.5);
+    } catch(e) {}
+  }
+}
+
+// --- Push Notification & Haptic Feedback ---
+const triggerPushNotification = (title: string, body: string) => {
+  if (navigator.vibrate) {
+    navigator.vibrate([150, 100, 150]);
+  }
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, {
+        body,
+        icon: '/manifest.json'
+      });
+    } catch (e) {
+      console.log('Notification trigger error:', e);
+    }
+  }
+};
+
 // --- Types ---
 interface School {
   id: string;
@@ -59,7 +163,7 @@ interface Schools {
 }
 
 interface Message {
-  id: number;
+  id: string | number;
   sender: string;
   text: string;
   time: string;
@@ -69,6 +173,14 @@ interface Message {
 interface Location {
   latitude: number;
   longitude: number;
+}
+
+interface Student {
+  id: string;
+  name: string;
+  stop: string;
+  avatar: string;
+  status: 'Wait' | 'Boarded' | 'Arrived' | 'Absent';
 }
 
 /**
@@ -146,6 +258,13 @@ const INITIAL_SCHOOLS: Schools = {
 const INITIAL_MESSAGES: Message[] = [
   { id: 1, sender: 'Teacher', text: 'Good morning! Bus is departing on time.', time: '08:00 AM', isBroadcast: true },
   { id: 2, sender: 'Parent (Emily)', text: 'Emily will be at the stop 2 mins late.', time: '08:15 AM', isBroadcast: false },
+];
+
+const INITIAL_STUDENTS: Student[] = [
+  { id: 'emily', name: 'Emily Boarding', stop: 'Stop 1 (Mapo)', avatar: '👧', status: 'Wait' },
+  { id: 'michael', name: 'Michael Smith', stop: 'Stop 2 (Hannam)', avatar: '👦', status: 'Wait' },
+  { id: 'sophia', name: 'Sophia Lee', stop: 'Stop 3 (Gangnam)', avatar: '👧', status: 'Wait' },
+  { id: 'alex', name: 'Alex Johnson', stop: 'Stop 4 (Seocho)', avatar: '👦', status: 'Wait' }
 ];
 
 function GoogleMap({ location, isLive }: { location: Location | null, isLive: boolean }) {
@@ -249,6 +368,7 @@ function App() {
   const [role, setRole] = useState<string | null>(null);
   const [schools, setSchools] = useState<Schools>(INITIAL_SCHOOLS);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS);
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [schoolCode, setSchoolCode] = useState('');
   const [codeError, setCodeError] = useState('');
@@ -257,12 +377,39 @@ function App() {
   const [location, setLocation] = useState<Location | null>(null);
   const [isLive, setIsLive] = useState(false);
   const [sosActive, setSosActive] = useState(false);
-  const [studentStatus, setStudentStatus] = useState('Wait');
   const [showCompanyInfo, setShowCompanyInfo] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   
+  // Production Enhancements States
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [trackingMode, setTrackingMode] = useState<'simulated' | 'gps'>('simulated');
+  const [isMuted, setIsMuted] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
+    'Notification' in window ? Notification.permission : 'default'
+  );
+
   const simId = useRef<any>(null);
+  const watchId = useRef<any>(null);
+
+  // 0. Register Service Worker & Network Handlers
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.log('SW registration note:', err);
+      });
+    }
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // 1. Subscribe to Live Location / School status
   useEffect(() => {
@@ -272,7 +419,14 @@ function App() {
     const unsub = onSnapshot(ref, (snap: any) => {
       if (snap.exists()) {
         const data = snap.data();
+        const prevLive = isLive;
         setIsLive(data.isLive || false);
+        
+        if (data.isLive && !prevLive) {
+          triggerPushNotification('🚌 BusBuddy Shift Started', `${selectedSchool.name} bus is now on route!`);
+          SoundFX.playChime();
+        }
+
         if (data.isLive && data.latitude && data.longitude) {
           setLocation({ latitude: data.latitude, longitude: data.longitude });
         } else {
@@ -304,12 +458,21 @@ function App() {
           createdAt: data.createdAt
         } as any);
       });
-      // Safely sort client-side by createdAt timestamp
+
       list.sort((a: any, b: any) => {
         const t1 = a.createdAt?.seconds || 0;
         const t2 = b.createdAt?.seconds || 0;
         return t1 - t2;
       });
+
+      if (list.length > messages.length && messages.length > 0) {
+        const lastMsg = list[list.length - 1];
+        if (lastMsg) {
+          SoundFX.playChime();
+          triggerPushNotification(`💬 Message from ${lastMsg.sender}`, lastMsg.text);
+        }
+      }
+
       setMessages(list.length > 0 ? list : INITIAL_MESSAGES);
     }, (err: any) => {
       handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}/messages`);
@@ -318,19 +481,34 @@ function App() {
     return () => unsub();
   }, [selectedSchool]);
 
-  // 3. Subscribe to Student Boarding Status
+  // 3. Subscribe to Student Boarding Statuses
   useEffect(() => {
     if (!selectedSchool) return;
 
-    const studentRef = doc(db, 'schools', selectedSchool.code!, 'students', 'emily');
-    const unsub = onSnapshot(studentRef, (snap: any) => {
-      if (snap.exists()) {
-        setStudentStatus(snap.data().status);
+    const studentsCol = collection(db, 'schools', selectedSchool.code!, 'students');
+    const unsub = onSnapshot(studentsCol, (snap: any) => {
+      const list: Student[] = [];
+      snap.forEach((docSnap: any) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          name: data.name || docSnap.id,
+          stop: data.stop || 'School Bus Stop',
+          avatar: data.avatar || '🧒',
+          status: data.status || 'Wait'
+        });
+      });
+
+      if (list.length > 0) {
+        setStudents(list);
       } else {
-        setStudentStatus('Wait');
+        // Seed initial student list if empty
+        INITIAL_STUDENTS.forEach(async (s) => {
+          await setDoc(doc(db, 'schools', selectedSchool.code!, 'students', s.id), s);
+        });
       }
     }, (err: any) => {
-      handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}/students/emily`);
+      handleFirestoreError(err, OperationType.GET, `schools/${selectedSchool.code!}/students`);
     });
 
     return () => unsub();
@@ -353,7 +531,6 @@ function App() {
         });
         setCodeError('');
       } else {
-        // Automatically seed the database project if the sample code matches standard mock sets
         const mockSchool = INITIAL_SCHOOLS[formattedCode];
         if (mockSchool) {
           await setDoc(ref, {
@@ -396,8 +573,8 @@ function App() {
 
   const startTracking = async () => {
     setIsLive(true);
-    let lat = 37.5665;
-    let lng = 126.9780;
+    SoundFX.playChime();
+    triggerPushNotification('🚀 Shift Started', 'Bus location is now broadcasting to parents.');
 
     const updateDB = async (lt: number, lg: number) => {
       if (!selectedSchool) return;
@@ -416,20 +593,44 @@ function App() {
       }
     };
 
-    await updateDB(lat, lng);
-
-    simId.current = setInterval(async () => {
-      lat += 0.0001;
-      lng += 0.0001;
-      setLocation({ latitude: lat, longitude: lng });
+    if (trackingMode === 'gps' && 'geolocation' in navigator) {
+      // Real Device GPS
+      watchId.current = navigator.geolocation.watchPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setLocation({ latitude, longitude });
+          await updateDB(latitude, longitude);
+        },
+        (err) => {
+          console.warn('GPS position error, falling back to simulation:', err);
+          setTrackingMode('simulated');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      // Simulated Movement
+      let lat = 37.5665;
+      let lng = 126.9780;
       await updateDB(lat, lng);
-    }, 2000);
+
+      simId.current = setInterval(async () => {
+        lat += 0.0001;
+        lng += 0.0001;
+        setLocation({ latitude: lat, longitude: lng });
+        await updateDB(lat, lng);
+      }, 2000);
+    }
   };
 
   const stopTracking = async () => {
-    clearInterval(simId.current);
+    if (simId.current) clearInterval(simId.current);
+    if (watchId.current && navigator.geolocation) navigator.geolocation.clearWatch(watchId.current);
+    
     setIsLive(false);
     setLocation(null);
+    SoundFX.playChime();
+    triggerPushNotification('🛑 Shift Ended', 'Bus location tracking stopped.');
+
     if (!selectedSchool) return;
     try {
       await setDoc(doc(db, 'schools', selectedSchool.code!), {
@@ -446,23 +647,46 @@ function App() {
     }
   };
 
-  const updateStudentStatusInDB = async (status: string) => {
+  const updateStudentStatusInDB = async (studentId: string, currentStatus: string) => {
     if (!selectedSchool) return;
-    const studentRef = doc(db, 'schools', selectedSchool.code!, 'students', 'emily');
+    const nextStatus = currentStatus === 'Wait' ? 'Boarded' : (currentStatus === 'Boarded' ? 'Arrived' : (currentStatus === 'Arrived' ? 'Absent' : 'Wait'));
+    const studentRef = doc(db, 'schools', selectedSchool.code!, 'students', studentId);
+    
+    SoundFX.playBoardingPing();
+    const stObj = students.find(s => s.id === studentId);
+    triggerPushNotification(`🚌 Student Status Updated`, `${stObj?.name || 'Student'} is now marked as ${nextStatus}.`);
+
     try {
       await setDoc(studentRef, {
-        name: 'Emily Boarding',
-        status: status,
+        status: nextStatus,
         updatedAt: serverTimestamp()
-      });
+      }, { merge: true });
     } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, `schools/${selectedSchool.code!}/students/emily`);
+      handleFirestoreError(err, OperationType.WRITE, `schools/${selectedSchool.code!}/students/${studentId}`);
     }
   };
 
   const triggerSOS = () => {
     setSosActive(true);
-    setTimeout(() => setSosActive(false), 5000);
+    SoundFX.playSOS();
+    triggerPushNotification('⚠️ SOS EMERGENCY SIGNAL', 'Driver activated emergency alert! Admin & Parents notified.');
+    setTimeout(() => setSosActive(false), 6000);
+  };
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window) {
+      const perm = await Notification.requestPermission();
+      setNotifPermission(perm);
+      if (perm === 'granted') {
+        triggerPushNotification('🔔 Notifications Active', 'You will receive real-time updates for BusBuddy PRO.');
+      }
+    }
+  };
+
+  const toggleSound = () => {
+    const next = !isMuted;
+    setIsMuted(next);
+    SoundFX.setMuted(next);
   };
 
   const renderTermsModal = () => html`
@@ -532,6 +756,7 @@ function App() {
   if (!role) {
     return html`
       <div class="app-viewport splash-bg anim-fade-in">
+        ${!isOnline && html`<div class="offline-banner">⚠️ Offline Mode - Cached View Active</div>`}
         <div class="splash-card">
           <div class="brand-container">
             <div class="logo-box-gradient">
@@ -565,6 +790,7 @@ function App() {
 
     return html`
       <div class="app-viewport splash-bg anim-fade-in">
+        ${!isOnline && html`<div class="offline-banner">⚠️ Offline Mode - Local Verification Only</div>`}
         <div class="auth-box">
           <button class="back-btn" onClick=${() => { setRole(null); setSchoolCode(''); setCodeError(''); }}>←</button>
           <div class="auth-icon">${roleIcon}</div>
@@ -592,6 +818,7 @@ function App() {
 
   return html`
     <div class="app-container main-app-bg anim-fade-in">
+      ${!isOnline && html`<div class="offline-banner">⚠️ Reconnecting to satellite server...</div>`}
       <header class="tracker-header">
         <div class="header-left">
            <div class="status-dot ${isLive ? 'online' : ''}"></div>
@@ -601,11 +828,20 @@ function App() {
            </div>
         </div>
         <div class="header-right">
-          <button class="info-icon-btn" onClick=${() => setShowCompanyInfo(true)}>ℹ️</button>
-          ${role === 'driver' 
-            ? html`<button class="sos-btn" onClick=${triggerSOS}>SOS</button>`
-            : html`<div class="eta-badge">ETA: <span>${isLive ? '12 min' : '--'}</span></div>`
-          }
+          <div class="header-action-group">
+            <button class="icon-toggle-btn" title="Toggle Sound" onClick=${toggleSound}>
+              ${isMuted ? '🔇' : '🔊'}
+            </button>
+            <button class="icon-toggle-btn" title="Push Notifications" onClick=${requestNotificationPermission}>
+              ${notifPermission === 'granted' ? '🔔' : '🔕'}
+              ${notifPermission === 'granted' && html`<span class="badge-dot"></span>`}
+            </button>
+            <button class="info-icon-btn" onClick=${() => setShowCompanyInfo(true)}>ℹ️</button>
+            ${role === 'driver' 
+              ? html`<button class="sos-btn" onClick=${triggerSOS}>SOS</button>`
+              : html`<div class="eta-badge">ETA: <span>${isLive ? '12 min' : '--'}</span></div>`
+            }
+          </div>
         </div>
       </header>
 
@@ -615,20 +851,42 @@ function App() {
           <div class="control-overlay">
             <div class="panel-card anim-fade-in">
               ${role === 'driver' ? html`
+                <div class="gps-mode-toggle">
+                  <button 
+                    class="gps-mode-btn ${trackingMode === 'simulated' ? 'active' : ''}" 
+                    onClick=${() => setTrackingMode('simulated')}
+                  >🎮 Simulated</button>
+                  <button 
+                    class="gps-mode-btn ${trackingMode === 'gps' ? 'active' : ''}" 
+                    onClick=${() => setTrackingMode('gps')}
+                  >📡 Real GPS</button>
+                </div>
                 <button class="main-cta ${isLive ? 'stop' : 'start'}" onClick=${isLive ? stopTracking : startTracking}>
                   ${isLive ? html`🛑 Stop Shift` : html`🚀 Start Shift`}
                 </button>
               ` : html`
-                <div class="student-info">
-                   <div class="avatar">🧒</div>
-                   <div class="student-meta">
-                     <h4 class="student-name">Emily Boarding</h4>
-                     <span class="status-tag ${studentStatus}">${studentStatus}</span>
-                   </div>
-                   <button class="update-btn" onClick=${() => {
-                      const next = studentStatus === 'Wait' ? 'Boarded' : (studentStatus === 'Boarded' ? 'Arrived' : 'Wait');
-                      updateStudentStatusInDB(next);
-                   }}>Update Status</button>
+                <div style="text-align: left; margin-bottom: 8px;">
+                  <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #1E293B;">Student Boarding Roster</h4>
+                  <small style="color: #64748B;">Tap status badge to update attendance</small>
+                </div>
+                <div class="students-roster">
+                  ${students.map((st) => html`
+                    <div class="student-card">
+                      <div class="student-card-info">
+                        <span class="student-card-avatar">${st.avatar}</span>
+                        <div>
+                          <p class="student-card-name">${st.name}</p>
+                          <p class="student-card-stop">${st.stop}</p>
+                        </div>
+                      </div>
+                      <button 
+                        class="status-badge ${st.status}" 
+                        onClick=${() => updateStudentStatusInDB(st.id, st.status)}
+                      >
+                        ${st.status}
+                      </button>
+                    </div>
+                  `)}
                 </div>
               `}
             </div>

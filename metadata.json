@@ -3,5 +3,8 @@
     "geolocation"
   ],
   "name": "BusBuddy PRO by Himpower",
-  "description": "Smart School Transportation app developed by Himpower Pvt. Ltd."
+  "description": "Smart School Transportation app developed by Himpower Pvt. Ltd.",
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

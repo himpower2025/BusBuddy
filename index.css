@@ -619,3 +619,163 @@ html, body, #root {
   background: #E2E8F0;
   color: #1E293B;
 }
+
+/* Production Features Styles */
+.offline-banner {
+  background: #F87171;
+  color: white;
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 100;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.gps-mode-toggle {
+  display: flex;
+  background: #F1F5F9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.gps-mode-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #64748B;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gps-mode-btn.active {
+  background: white;
+  color: #4338CA;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.header-action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: white;
+  color: #334155;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.icon-toggle-btn:hover {
+  background: #F8FAFC;
+  transform: scale(1.05);
+}
+
+.icon-toggle-btn .badge-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.students-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.student-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+}
+
+.student-card-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-card-avatar {
+  font-size: 1.4rem;
+}
+
+.student-card-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #1E293B;
+  margin: 0;
+}
+
+.student-card-stop {
+  font-size: 0.75rem;
+  color: #64748B;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-badge.Wait {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.status-badge.Boarded {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.status-badge.Arrived {
+  background: #E0E7FF;
+  color: #4338CA;
+}
+
+.status-badge.Absent {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
