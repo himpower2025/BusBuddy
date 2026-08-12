@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence, disableNetwork } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,10 +15,9 @@ const firebaseConfig = {
 
 let db: any = null;
 let auth: any = null;
-let isFirebaseFallback = false;
+let isFirebaseFallback = true;
 let fallbackReason = "";
 
-// Check if config has minimum required fields to initialize securely
 const hasValidConfig = !!(firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIzaSy'));
 
 if (hasValidConfig) {
@@ -26,8 +25,8 @@ if (hasValidConfig) {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     auth = getAuth(app);
-    
-    // Sign in anonymously on import to handle basic Firestore authentication queries safely
+    isFirebaseFallback = false; // ✅ 키가 있으면 일단 Live로 설정
+
     signInAnonymously(auth).catch((error: any) => {
       console.warn("Anonymous auth skipped or failed:", error);
     });
@@ -37,27 +36,19 @@ if (hasValidConfig) {
     fallbackReason = error?.message || String(error);
   }
 } else {
-  console.warn("VITE_FIREBASE_API_KEY is missing or invalid. Initializing in offline sandbox mode.");
   isFirebaseFallback = true;
-  fallbackReason = "Missing or malformed VITE_FIREBASE_API_KEY environment variable. Check Vercel settings.";
+  fallbackReason = "Missing or malformed VITE_FIREBASE_API_KEY";
 }
 
-// Provide defensive mock objects if initialization failed or config was invalid
 if (isFirebaseFallback) {
   db = new Proxy({}, {
-    get(target, prop) {
-      return () => {
-        throw new Error(`Firebase not initialized: ${fallbackReason}`);
-      };
+    get() {
+      return () => { throw new Error(`Firebase not initialized: ${fallbackReason}`); };
     }
   });
-  
   auth = {
     currentUser: null,
-    onAuthStateChanged: (cb: any) => {
-      if (typeof cb === 'function') cb(null);
-      return () => {};
-    }
+    onAuthStateChanged: (cb: any) => { if (typeof cb === 'function') cb(null); return () => {}; }
   };
 }
 
