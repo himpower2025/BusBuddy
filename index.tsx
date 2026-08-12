@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'preact/hooks';
 import { html } from 'htm/preact';
 
 // --- Firebase Imports ---
-import { db, auth } from './firebase';
+import { db, auth, isFirebaseFallback, fallbackReason, firebaseConfig } from './firebase';
 import { collection, doc, setDoc, getDoc, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 
 enum OperationType {
@@ -516,6 +516,15 @@ function App() {
 
   const handleVerifyCode = async () => {
     const formattedCode = schoolCode.trim().toUpperCase();
+    const mockSchool = INITIAL_SCHOOLS[formattedCode];
+    if (isFirebaseFallback) {
+      if (mockSchool) {
+        setSelectedSchool({ ...mockSchool, id: formattedCode, code: formattedCode });
+      } else {
+        setCodeError('Invalid code. Try "SEL999" or "PAE101"');
+      }
+      return;
+    }
     const ref = doc(db, 'schools', formattedCode);
     try {
       const snap = await getDoc(ref);
