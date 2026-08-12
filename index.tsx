@@ -516,6 +516,20 @@ function App() {
 
   const handleVerifyCode = async () => {
     const formattedCode = schoolCode.trim().toUpperCase();
+
+    // 🧪 DEMO001: Firebase 완전 우회, GPS/지도 테스트 전용
+    if (formattedCode === 'DEMO001') {
+      setSelectedSchool({
+        id: 'DEMO001',
+        name: 'Demo Test School',
+        logo: '🧪',
+        routes: ['Test Route A'],
+        driverName: 'Test Driver',
+        code: 'DEMO001'
+      });
+      return;
+    }
+
     const mockSchool = INITIAL_SCHOOLS[formattedCode];
     if (isFirebaseFallback) {
       if (mockSchool) {
